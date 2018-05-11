@@ -1,0 +1,26 @@
+<ProcessTimes>
+  <ProcessTime>
+    <Process>ActiveWatcher</Process>
+    <Time>58</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>devenv</Process>
+    <Time>25</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>notepad++</Process>
+    <Time>54</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>lync</Process>
+    <Time>3</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>chrome</Process>
+    <Time>114</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>explorer</Process>
+    <Time>10</Time>
+  </ProcessTime>
+</ProcessTimes>

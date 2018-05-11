@@ -1,0 +1,5 @@
+<Configuration>
+  <DisplayCount>10</DisplayCount>
+  <IdleLimit>60</IdleLimit>
+  <SaveTimes>False</SaveTimes>
+</Configuration>
