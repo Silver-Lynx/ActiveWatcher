@@ -36,6 +36,7 @@ namespace ActiveWatcher
         Dictionary<string, int> prevTimes;
         int idleTimer = 0;
         Point mouseWatch = new Point(0, 0);
+        ProcessManager procManager;
 
         public delegate void resize(int processCount);
         public delegate void tick();
@@ -47,6 +48,15 @@ namespace ActiveWatcher
         {
             if (instance != null) return;
             instance = new Watcher();
+            instance.procManager = new ProcessManager();
+            instance.procManager.loadFile();
+
+            //Load rules
+            instance.Rules = new List<Rule>();
+            instance.loadRules();
+
+            //Load times
+            //instance.loadTimes();
         }
 
         private Watcher()
@@ -63,13 +73,6 @@ namespace ActiveWatcher
 
             //Start clocking
             CLOCK.Start();
-
-            //Load rules
-            Rules = new List<Rule>();
-            loadRules();
-
-            //Load times
-            loadTimes();
         }
 
         //Clock tick event
@@ -99,8 +102,20 @@ namespace ActiveWatcher
             //If not found in dictionary
             else if (focus.ProcessName != "Idle")
             {
+                //Get process
+                WProcess proc = procManager.getProcess(focus.ProcessName);
+
+                //If no process found, register new process
+                if(proc == null)
+                {
+                    //Add to process manager and get return
+                    proc = procManager.addProcess(focus);
+
+                    procManager.saveFile();
+                }
+
                 //Add the newly focused process to the list
-                ProcessTimer p = new ProcessTimer(focus);
+                ProcessTimer p = new ProcessTimer(proc);
 
                 //Check for rules to add alarms
                 foreach (Rule r in Rules)
@@ -110,12 +125,12 @@ namespace ActiveWatcher
                 }
 
                 //Load previous time
-                if (prevTimes.ContainsKey(p.hook.ProcessName))
-                    p.secondsActive = prevTimes[p.hook.ProcessName];
+                //if (prevTimes.ContainsKey(p.process.processName))
+                //    p.secondsActive = prevTimes[p.process.processName];
 
                 ProcessTimer.total += p.secondsActive;
 
-                timers.Add(p.hook.ProcessName, p);
+                timers.Add(p.process.processName, p);
                 p.tick();
 
                 //Call the resize event
@@ -155,7 +170,13 @@ namespace ActiveWatcher
         void loadConfig()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load("Config.xml");
+            try
+            {
+                doc.Load("Config.xml");
+            }catch
+            {
+                return;
+            }
 
             try
             {
@@ -176,7 +197,13 @@ namespace ActiveWatcher
         void loadRules()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load("Rules.xml");
+            try
+            {
+                doc.Load("Rules.xml");
+            }catch
+            {
+                return;
+            }
 
             bool err = false;
             foreach (XmlNode rule in doc.FirstChild)
@@ -212,7 +239,7 @@ namespace ActiveWatcher
                 XmlElement timer = doc.CreateElement("ProcessTime");
 
                 XmlElement val = doc.CreateElement("Process");
-                val.InnerText = p.hook.ProcessName;
+                val.InnerText = p.process.processName;
                 timer.AppendChild(val);
                 
                 val = doc.CreateElement("Time");
@@ -322,8 +349,8 @@ namespace ActiveWatcher
             CLOCK.Elapsed -= func;
         }
         #endregion
-        
-        public Dictionary<string, ProcessTimer> getProcesses()
+
+        public Dictionary<string, ProcessTimer> getTimers()
         {
             return timers;
         }
@@ -338,27 +365,14 @@ namespace ActiveWatcher
     {
         public static int total = 0;
         public int secondsActive { get; internal set; }
-        public Process hook;
-        Image i;
+        public WProcess process;
         List<RuleAlarm> alarms;
 
-        public ProcessTimer(Process p)
+        public ProcessTimer(WProcess p,int s = 0)
         {
-            hook = p;
-            secondsActive = 0;
-            try {
-                i = Icon.ExtractAssociatedIcon(hook.MainModule.FileName).ToBitmap();
-            }
-            catch
-            {
-                i = null;
-            }
+            this.process = p;
+            secondsActive = s;
             alarms = new List<RuleAlarm>();
-        }
-
-        public int getSecs()
-        {
-            return secondsActive;
         }
 
         public override string ToString()
@@ -378,7 +392,7 @@ namespace ActiveWatcher
 
         public Image getIcon()
         {
-            return i;
+            return process.icon;
         }
 
         internal void applyRule(Rule r)

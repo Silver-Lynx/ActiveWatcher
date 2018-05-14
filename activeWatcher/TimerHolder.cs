@@ -34,7 +34,7 @@ namespace ActiveWatcher
             InitializeComponent();
             instance = this;
             w = Watcher.instance;
-            processes = w.getProcesses();
+            processes = w.getTimers();
             pos = Position.BOTTOM_RIGHT;
             plabels = new Label[DisplayCount];
 
@@ -208,7 +208,7 @@ namespace ActiveWatcher
         private void reset_Click(object sender, EventArgs e)
         {
             w.resetAll();
-            processes = w.getProcesses();
+            processes = w.getTimers();
             foreach(Label l in plabels)
             {
                 if(l != null)

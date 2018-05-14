@@ -72,6 +72,7 @@
     <Compile Include="Options.Designer.cs">
       <DependentUpon>Options.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProcessManager.cs" />
     <Compile Include="Rule.cs" />
     <Compile Include="RuleAdd.cs">
       <SubType>Form</SubType>
