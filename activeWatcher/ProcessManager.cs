@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -21,91 +22,95 @@ namespace ActiveWatcher
             processes = new Dictionary<string, WProcess>();
         }
 
-        internal void loadFile()
+        internal void loadProcesses()
         {
-            XmlDocument doc = new XmlDocument();
-            try
+            //Open DB connection
+            SqlConnection database = new SqlConnection(Watcher.DBConnection);
+            database.Open();
+            
+            //Do query for processes
+            using (SqlCommand comm = new SqlCommand())
             {
-                doc.Load(filePath);
-            }
-            catch
-            {
-                return;
-            }
-            foreach (XmlElement e in doc.FirstChild)
-            {
-                if (e.Name != "Process") continue;
+                //Build command
+                comm.CommandType = System.Data.CommandType.Text;
+                comm.CommandText = "SELECT process_ndx, process_name, common_name, icon FROM process_ref";
+                comm.Connection = database;
 
-                //Parse encoded icon into Image object using stream reading
-                byte[] iconData = Convert.FromBase64String(e.SelectSingleNode("Icon").InnerText);
-                //Make stream and fill with string
-                MemoryStream stream = new MemoryStream();
-                BinaryWriter writer = new BinaryWriter(stream);
-                writer.Write(iconData);
-                //Move pointer to start of stream
-                writer.Flush();
-                stream.Position = 0;
-                //Load stream as image
-                Image icon = Bitmap.FromStream(stream);
+                //Run command and get data
+                using (SqlDataReader data = comm.ExecuteReader())
+                {
+                    //Data exists
+                    if (data.HasRows)
+                    {
+                        //While data still exists
+                        while (data.Read())
+                        {
+                            //Parse encoded icon into Image object using stream reading
+                            byte[] iconData = Convert.FromBase64String(data.GetString(3));
+                            //Make stream and fill with string
+                            MemoryStream stream = new MemoryStream();
+                            BinaryWriter writer = new BinaryWriter(stream);
+                            writer.Write(iconData);
+                            //Move pointer to start of stream
+                            writer.Flush();
+                            stream.Position = 0;
+                            //Load stream as image
+                            Image icon = Bitmap.FromStream(stream);
 
-                //Add process to list
-                processes.Add(e.SelectSingleNode("ProcessName").InnerText,
-                    new WProcess(int.Parse(e.SelectSingleNode("ID").InnerText),
-                        e.SelectSingleNode("ProcessName").InnerText,
-                        e.SelectSingleNode("CommonName").InnerText,
-                        icon)
-                );
+                            //Add process to list
+                            processes.Add(data.GetString(1),
+                                new WProcess(data.GetInt32(0),
+                                    data.GetString(1),
+                                    data.GetString(2),
+                                    icon));
+                        }
+                    }
+                    //Close data reader
+                    data.Close();
+                }
             }
+
+            //close DB Connection
+            database.Close();
         }
 
-        internal void saveFile()
+        internal void saveProcesses()
         {
-            //New XML file to write to
-            XmlDocument doc = new XmlDocument();
-            XmlElement main = doc.CreateElement("ProcessData");
+            //Open DB connection
+            SqlConnection database = new SqlConnection(Watcher.DBConnection);
+            database.Open();
 
-            foreach (WProcess p in processes.Values)
+            //Do query for processes
+            using (SqlCommand comm = new SqlCommand())
             {
-                XmlElement hold = doc.CreateElement("Process");
+                //Build command
+                comm.CommandType = System.Data.CommandType.Text;
+                comm.CommandText = "INSERT INTO process_ref (process_name, common_name, icon) VALUES (@pname, @cname, @icon)";
+                comm.Connection = database;
 
-                //Check if icon exists and prepare for writing
-                string iconText = "";
-                if (p.icon != null)
-                {
-                    //Parse icon into encoded string using stream reading
-                    MemoryStream stream = new MemoryStream();
-                    p.icon.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                    stream.Position = 0;
-                    byte[] data = stream.ToArray();
-                    iconText = Convert.ToBase64String(data);
+                foreach(WProcess p in processes.Values) {
+
+                    string iconText = "";
+                    if (p.icon != null)
+                    {
+                        //Parse icon into encoded string using stream reading
+                        MemoryStream stream = new MemoryStream();
+                        p.icon.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                        stream.Position = 0;
+                        byte[] data = stream.ToArray();
+                        iconText = Convert.ToBase64String(data);
+                    }
+
+                    comm.Parameters.Add("@pname", System.Data.SqlDbType.NVarChar).Value = p.processName;
+                    comm.Parameters.Add("@cname", System.Data.SqlDbType.NVarChar).Value = p.commonName;
+                    comm.Parameters.Add("@icon", System.Data.SqlDbType.NVarChar).Value = iconText;
+
+                    comm.ExecuteNonQuery();
+
+                    comm.Parameters.Clear();
                 }
-
-                //Add all elements to parent element
-                XmlElement val = doc.CreateElement("ID");
-                val.InnerText = p.ID.ToString();
-                hold.AppendChild(val);
-
-                val = doc.CreateElement("ProcessName");
-                val.InnerText = p.processName;
-                hold.AppendChild(val);
-
-                val = doc.CreateElement("CommonName");
-                val.InnerText = p.commonName;
-                hold.AppendChild(val);
-
-                val = doc.CreateElement("Icon");
-                val.InnerText = iconText;
-                hold.AppendChild(val);
-
-                //Add process element to total list
-                main.AppendChild(hold);
             }
-
-            //Add list to file
-            doc.AppendChild(main);
-
-            //Save file
-            doc.Save(filePath);
+            database.Close();
         }
 
         internal WProcess addProcess(Process p)

@@ -1,0 +1,14 @@
+<ProcessTimes>
+  <ProcessTime>
+    <Process>ActiveWatcher.vshost</Process>
+    <Time>3</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>devenv</Process>
+    <Time>4</Time>
+  </ProcessTime>
+  <ProcessTime>
+    <Process>notepad++</Process>
+    <Time>7</Time>
+  </ProcessTime>
+</ProcessTimes>

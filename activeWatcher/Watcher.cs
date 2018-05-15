@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -28,6 +29,9 @@ namespace ActiveWatcher
         public static int idleMax = 30;
         public static int displayCount = 5;
         public static bool doSaveTimes = false;
+        public static string DBConnection = @"Data Source=(LocalDB)\MSSQLLocalDB;
+                AttachDbFilename=|DataDirectory|\ProcessTimes.mdf;
+                Integrated Security=True";
         #endregion
 
         System.Timers.Timer CLOCK;
@@ -37,6 +41,7 @@ namespace ActiveWatcher
         int idleTimer = 0;
         Point mouseWatch = new Point(0, 0);
         ProcessManager procManager;
+        SqlConnection database;
 
         public delegate void resize(int processCount);
         public delegate void tick();
@@ -49,7 +54,7 @@ namespace ActiveWatcher
             if (instance != null) return;
             instance = new Watcher();
             instance.procManager = new ProcessManager();
-            instance.procManager.loadFile();
+            instance.procManager.loadProcesses();
 
             //Load rules
             instance.Rules = new List<Rule>();
@@ -57,6 +62,7 @@ namespace ActiveWatcher
 
             //Load times
             //instance.loadTimes();
+            instance.database = new SqlConnection(DBConnection);
         }
 
         private Watcher()
@@ -111,7 +117,7 @@ namespace ActiveWatcher
                     //Add to process manager and get return
                     proc = procManager.addProcess(focus);
 
-                    procManager.saveFile();
+                    procManager.saveProcesses();
                 }
 
                 //Add the newly focused process to the list

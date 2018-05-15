@@ -21,3 +21,5 @@ C:\Users\atepp\Documents\GitHub\ActiveWatcher\activeWatcher\obj\Debug\ActiveWatc
 C:\Users\atepp\Documents\GitHub\ActiveWatcher\activeWatcher\obj\Debug\ActiveWatcher.TimerHolder.resources
 C:\Users\atepp\Documents\GitHub\ActiveWatcher\activeWatcher\obj\Debug\ActiveWatcher.Properties.Resources.resources
 C:\Users\atepp\Documents\GitHub\ActiveWatcher\activeWatcher\obj\Debug\ActiveWatcher.csproj.GenerateResource.Cache
+C:\Users\atepp\Documents\GitHub\ActiveWatcher\activeWatcher\bin\Debug\ProcessTimes.mdf
+C:\Users\atepp\Documents\GitHub\ActiveWatcher\activeWatcher\bin\Debug\ProcessTimes_log.ldf
