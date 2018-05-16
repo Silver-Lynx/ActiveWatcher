@@ -45,6 +45,9 @@ namespace ActiveWatcher
         double targetOpacity;
         double opacitySpeed = 0.04;
 
+        int labelHeight = 24;
+        int labelWidth = 128;
+
         public TimerHolder()
         {
             InitializeComponent();
@@ -127,8 +130,8 @@ namespace ActiveWatcher
                 hold.Text = "";
                 hold.BackColor = System.Drawing.Color.Transparent;
                 hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
-                hold.Location = new System.Drawing.Point(0, p * 20);
-                hold.Size = new System.Drawing.Size(128, 20);
+                hold.Location = new System.Drawing.Point(0, p * labelHeight);
+                hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
                 hold.Margin = new System.Windows.Forms.Padding(0);
                 hold.TabIndex = 0;
                 hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -144,7 +147,7 @@ namespace ActiveWatcher
 
 
             int num = processes.Count > DisplayCount ? DisplayCount : processes.Count;
-            this.ClientSize = new Size(128, 20 * (num < 1 ? 1 : num));
+            this.ClientSize = new Size(labelWidth, labelHeight * (num < 1 ? 1 : num));
             switch (pos)
             {
                 case Position.TOP_LEFT:
@@ -179,12 +182,12 @@ namespace ActiveWatcher
                 // TestLabel
                 // 
                 Label hold = new Label();
-                hold.Name = "Label" + ((processes.Count - 1) * 20).ToString();
+                hold.Name = "Label" + ((processes.Count - 1) * labelHeight).ToString();
                 hold.Text = "";
                 hold.BackColor = System.Drawing.Color.Transparent;
                 hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
-                hold.Location = new System.Drawing.Point(0, (processes.Count-1)*20);
-                hold.Size = new System.Drawing.Size(128, 20);
+                hold.Location = new System.Drawing.Point(0, (processes.Count-1)*labelHeight);
+                hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
                 hold.Margin = new System.Windows.Forms.Padding(0);
                 hold.TabIndex = 0;
                 hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;

@@ -50,7 +50,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>ActiveWatcherIcon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\ActiveWatcherIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -75,6 +75,11 @@
       <DependentUpon>Options.cs</DependentUpon>
     </Compile>
     <Compile Include="ProcessManager.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Rule.cs" />
     <Compile Include="RuleAdd.cs">
       <SubType>Form</SubType>
@@ -111,14 +116,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -133,7 +133,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ActiveWatcherIcon.ico" />
+    <Content Include="Resources\ActiveWatcherIcon.ico" />
     <Content Include="ProcessTimes.mdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -141,6 +141,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <DependentUpon>ProcessTimes.mdf</DependentUpon>
     </Content>
+    <None Include="Resources\ZZZ.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

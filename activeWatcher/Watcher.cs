@@ -101,19 +101,20 @@ namespace ActiveWatcher
             int focusID;
             GetWindowThreadProcessId(GetForegroundWindow(),out focusID);
             Process focus = Process.GetProcessById(focusID);
+            string activeProcess = focus.ProcessName;
 
             //Test for idle time
             if (GetInactiveTime() > IDLEMAX)
-                focus = Process.GetCurrentProcess();
+                activeProcess = "IDLE";
             //if (mouseWatch != Cursor.Position)
             //    resetIdle();
             //mouseWatch = Cursor.Position;
     
             //Check if focused ID is in timers
-            if (timers.ContainsKey(focus.ProcessName))
+            if (timers.ContainsKey(activeProcess))
             {
                 //If found, tick up that process timer
-                timers[focus.ProcessName].tick();
+                timers[activeProcess].tick();
 
                 //If saving times
                 if (doSaveTimes)
@@ -125,7 +126,7 @@ namespace ActiveWatcher
                         cmd.Connection = instance.database;
                         cmd.CommandType = System.Data.CommandType.Text;
 
-                        cmd.Parameters.Add("@ndx", System.Data.SqlDbType.Int).Value = timers[focus.ProcessName].process.ID;
+                        cmd.Parameters.Add("@ndx", System.Data.SqlDbType.Int).Value = timers[activeProcess].process.ID;
 
                         instance.database.Open();
 
@@ -136,10 +137,10 @@ namespace ActiveWatcher
                 }
             }
             //If not found in dictionary
-            else if (focus.ProcessName != "Idle")
+            else
             {
                 //Get process
-                WProcess proc = procManager.getProcess(focus.ProcessName);
+                WProcess proc = procManager.getProcess(activeProcess);
 
                 //If no process found, register new process
                 if(proc == null)
@@ -151,12 +152,14 @@ namespace ActiveWatcher
                 //Add the newly focused process to the list
                 ProcessTimer p = new ProcessTimer(proc);
 
-                //Check for rules to add alarms
-                foreach (Rule r in Rules)
-                {
-                    if (r.checkApply(p))
-                        p.applyRule(r);
-                }
+                //Dont apply rules to idle process
+                if (activeProcess != "IDLE")
+                    //Check for rules to add alarms
+                    foreach (Rule r in Rules)
+                    {
+                        if (r.checkApply(p))
+                            p.applyRule(r);
+                    }
 
                 //Load previous time
                 //if (prevTimes.ContainsKey(p.process.processName))

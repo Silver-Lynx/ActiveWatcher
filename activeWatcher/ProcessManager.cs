@@ -52,6 +52,10 @@ namespace ActiveWatcher
 
         internal void loadProcesses()
         {
+            processes?.Clear();
+
+            processes.Add("IDLE",new WProcess(-1, "IDLE", "User Idle", Properties.Resources.ZZZ));
+
             //Open DB connection
             SqlConnection database = new SqlConnection(Watcher.DBCONNECTION);
             database.Open();
