@@ -21,18 +21,18 @@ namespace ActiveWatcher
 
             #region Dropdown - Program list
             //Make set of key,value pairs to display in list
-            KeyValuePair<string, string>[] programData = new KeyValuePair<string, string>[Watcher.instance.getProcesses().Count];
+            KeyValuePair<string, string>[] programData = new KeyValuePair<string, string>[Watcher.instance.getTimers().Count+1];
             programData[0] = new KeyValuePair<string, string>("*", "Any Program");
 
             //Populate array with the process values
             int ptr = 1;
-            foreach(ProcessTimer t in Watcher.instance.getProcesses().Values)
+            foreach(ProcessTimer t in Watcher.instance.getTimers().Values)
             {
                 //Dont include this program
-                if (t.hook.ProcessName == "ActiveWatcher") continue;
+                if (t.process.processName == "ActiveWatcher") continue;
 
                 //Add the program root process as key and the display name as value
-                programData[ptr++] = new KeyValuePair<string, string>(t.hook.ProcessName, t.hook.MainModule.FileVersionInfo.FileDescription);
+                programData[ptr++] = new KeyValuePair<string, string>(t.process.processName, t.process.commonName);
             }
             //Set properties on Dropdown
             ddProgram.DataSource = programData;

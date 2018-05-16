@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,30 +22,77 @@ namespace ActiveWatcher
     }
     public partial class TimerHolder : Form
     {
+        #region imports
+        const int GWL_EXSTYLE = -20;
+        const int WS_EX_LAYERED = 0x80000;
+        const int WS_EX_TRANSPARENT = 0x20;
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        #endregion
+
         public static TimerHolder instance;
 
         Watcher w;
         Dictionary<string,ProcessTimer> processes;
         Position pos;
-        public int DisplayCount { get { return Watcher.displayCount; } set { Watcher.displayCount = value; redraw(); } }
+        public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value; redraw(); } }
         Label[] plabels;
+
+        public bool displaying = false;
+        Timer ANIMTIMER;
+        double hideOpacity = 0.1;
+        double targetOpacity;
+        double opacitySpeed = 0.04;
 
         public TimerHolder()
         {
             InitializeComponent();
             instance = this;
+            this.Opacity = 0.0;
             w = Watcher.instance;
-            processes = w.getProcesses();
+            processes = w.getTimers();
             pos = Position.BOTTOM_RIGHT;
             plabels = new Label[DisplayCount];
+
+            ANIMTIMER = new Timer();
+            ANIMTIMER.Interval = 16;
+            ANIMTIMER.Tick += ANIMTIMER_Tick;
+            targetOpacity = hideOpacity;
 
             w.onResize += W_resize;
             w.onTick += W_onTick;
         }
 
+        public void display()
+        {
+            redraw();
+            ANIMTIMER.Start();
+            displaying = true;
+        }
+
+        private void ANIMTIMER_Tick(object sender, EventArgs e)
+        {
+            if (this.Opacity < targetOpacity)
+            {
+                this.Opacity += opacitySpeed;
+                if (this.Opacity >= targetOpacity)
+                    ANIMTIMER.Stop();
+            }
+            else
+            {
+                this.Opacity -= opacitySpeed;
+                if (this.Opacity <= targetOpacity)
+                    ANIMTIMER.Stop();
+            }
+        }
+
         private void W_onTick()
         {
             this.Invoke(new MethodInvoker(delegate { updateLabels(); }));
+
+            if (!displaying) this.Invoke(new MethodInvoker(delegate { display(); }));
         }
 
         private void W_resize(int processCount)
@@ -81,11 +129,14 @@ namespace ActiveWatcher
                 hold.BackColor = System.Drawing.Color.Transparent;
                 hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
                 hold.Location = new System.Drawing.Point(0, p * 20);
-                hold.Size = new System.Drawing.Size(150, 20);
+                hold.Size = new System.Drawing.Size(128, 20);
                 hold.Margin = new System.Windows.Forms.Padding(0);
                 hold.TabIndex = 0;
                 hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
                 hold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+                hold.MouseEnter += TimerHolder_MouseEnter;
+                hold.MouseLeave += TimerHolder_MouseLeave;
 
                 this.Controls.Add(hold);
                 this.plabels[p] = hold;
@@ -94,7 +145,7 @@ namespace ActiveWatcher
 
 
             int num = processes.Count > DisplayCount ? DisplayCount : processes.Count;
-            this.ClientSize = new Size(150, 20 * (num < 1 ? 1 : num));
+            this.ClientSize = new Size(128, 20 * (num < 1 ? 1 : num));
             switch (pos)
             {
                 case Position.TOP_LEFT:
@@ -134,7 +185,7 @@ namespace ActiveWatcher
                 hold.BackColor = System.Drawing.Color.Transparent;
                 hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
                 hold.Location = new System.Drawing.Point(0, (processes.Count-1)*20);
-                hold.Size = new System.Drawing.Size(150, 20);
+                hold.Size = new System.Drawing.Size(128, 20);
                 hold.Margin = new System.Windows.Forms.Padding(0);
                 hold.TabIndex = 0;
                 hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -164,6 +215,7 @@ namespace ActiveWatcher
             this.Close();
         }
 
+        #region Repositioning
         private void posBR_Click(object sender, EventArgs e)
         {
             pos = Position.BOTTOM_RIGHT;
@@ -200,15 +252,12 @@ namespace ActiveWatcher
             this.redraw();
         }
 
-        private void TimerHolder_Deactivate(object sender, EventArgs e)
-        {
-            w.resetIdle();
-        }
+        #endregion
 
         private void reset_Click(object sender, EventArgs e)
         {
             w.resetAll();
-            processes = w.getProcesses();
+            processes = w.getTimers();
             foreach(Label l in plabels)
             {
                 if(l != null)
@@ -226,6 +275,18 @@ namespace ActiveWatcher
         private void Notify_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             new Options().Show();
+        }
+
+        private void TimerHolder_MouseEnter(object sender, EventArgs e)
+        {
+            targetOpacity = 1.0;
+            if (!ANIMTIMER.Enabled) ANIMTIMER.Start();
+        }
+
+        private void TimerHolder_MouseLeave(object sender, EventArgs e)
+        {
+            targetOpacity = hideOpacity;
+            if (!ANIMTIMER.Enabled) ANIMTIMER.Start();
         }
     }
 }

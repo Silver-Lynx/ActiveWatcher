@@ -57,7 +57,7 @@ namespace ActiveWatcher
         public bool checkApply(ProcessTimer t)
         {
             //If any program, or the matching program, apply is true
-            return processName == "*" || processName == t.hook.ProcessName;
+            return processName == "*" || processName == t.process.processName;
         }
 
         internal RuleAlarm getAlarm()
@@ -87,7 +87,7 @@ namespace ActiveWatcher
             Watcher.instance.registerTick(idleTick);
         }
 
-        public void evaluate(int t, ProcessTimer p)
+        public void evaluate(int t, ProcessTimer pt)
         {
             //If already active, do nothing
             if (active) return;
@@ -110,16 +110,16 @@ namespace ActiveWatcher
                     System.Windows.Forms.MessageBox.Show("Your time limit has been reached!","ActiveWatcher Alarm",System.Windows.Forms.MessageBoxButtons.OK,System.Windows.Forms.MessageBoxIcon.Warning);
                     break;
                 case Rule.RuleResult.Minimize:
-                    if (p.hook != null)
-                        ShowWindow(p.hook.MainWindowHandle, 2);
+                    foreach(System.Diagnostics.Process p in pt.process.getHooks())
+                        ShowWindow(p.MainWindowHandle, 2);
                     break;
                 case Rule.RuleResult.Swap:
-                    if (p.hook != null)
-                        ShowWindow(p.hook.MainWindowHandle, 2);
+                    foreach (System.Diagnostics.Process p in pt.process.getHooks())
+                        ShowWindow(p.MainWindowHandle, 2);
                     break;
                 case Rule.RuleResult.Kill:
-                    if (p.hook != null)
-                        p.hook.Kill();
+                    foreach (System.Diagnostics.Process p in pt.process.getHooks())
+                        p.Kill();
                     System.Windows.Forms.MessageBox.Show("Your time limit has been reached! Process Killed!", "ActiveWatcher Alarm", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
                     break;
                 default:

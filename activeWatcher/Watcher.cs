@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -22,20 +23,34 @@ namespace ActiveWatcher
 
         [DllImport("user32")]
         private static extern UInt32 GetWindowThreadProcessId(Int32 hWnd, out Int32 lpdwProcessId);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LASTINPUTINFO
+        {
+            public uint cbSize;
+            public uint dwTime;
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
         #endregion
 
         #region Statics
-        public static int idleMax = 30;
-        public static int displayCount = 5;
-        public static bool doSaveTimes = false;
+        public static int IDLEMAX = 30;
+        public static int DISPLAYCOUNT = 5;
+        public static bool doSaveTimes = true;
+        public static string DBCONNECTION = @"Data Source=(LocalDB)\MSSQLLocalDB;
+                AttachDbFilename=|DataDirectory|\ProcessTimes.mdf;
+                Integrated Security=True";
         #endregion
 
         System.Timers.Timer CLOCK;
         //Timers only shows processes that HAVE BEEN active
         Dictionary<string,ProcessTimer> timers;
         Dictionary<string, int> prevTimes;
-        int idleTimer = 0;
         Point mouseWatch = new Point(0, 0);
+        ProcessManager procManager;
+        SqlConnection database;
 
         public delegate void resize(int processCount);
         public delegate void tick();
@@ -47,6 +62,16 @@ namespace ActiveWatcher
         {
             if (instance != null) return;
             instance = new Watcher();
+            instance.procManager = new ProcessManager();
+            instance.procManager.loadProcesses();
+
+            //Load rules
+            instance.Rules = new List<Rule>();
+            instance.loadRules();
+
+            //Load times
+            //instance.loadTimes();
+            instance.database = new SqlConnection(DBCONNECTION);
         }
 
         private Watcher()
@@ -63,13 +88,6 @@ namespace ActiveWatcher
 
             //Start clocking
             CLOCK.Start();
-
-            //Load rules
-            Rules = new List<Rule>();
-            loadRules();
-
-            //Load times
-            loadTimes();
         }
 
         //Clock tick event
@@ -84,23 +102,53 @@ namespace ActiveWatcher
             Process focus = Process.GetProcessById(focusID);
 
             //Test for idle time
-            if (idleTimer++ > idleMax)
+            if (GetInactiveTime() > IDLEMAX)
                 focus = Process.GetCurrentProcess();
-            if (mouseWatch != Cursor.Position)
-                resetIdle();
-            mouseWatch = Cursor.Position;
+            //if (mouseWatch != Cursor.Position)
+            //    resetIdle();
+            //mouseWatch = Cursor.Position;
     
             //Check if focused ID is in timers
             if (timers.ContainsKey(focus.ProcessName))
             {
                 //If found, tick up that process timer
                 timers[focus.ProcessName].tick();
+
+                //If saving times
+                if (doSaveTimes)
+                {
+                    //Write tick to database
+                    using (SqlCommand cmd = new SqlCommand())
+                    {
+                        cmd.CommandText = "INSERT INTO process_time_data (time_stamp, process_ndx) VALUES (GETDATE(),@ndx)";
+                        cmd.Connection = instance.database;
+                        cmd.CommandType = System.Data.CommandType.Text;
+
+                        cmd.Parameters.Add("@ndx", System.Data.SqlDbType.Int).Value = timers[focus.ProcessName].process.ID;
+
+                        instance.database.Open();
+
+                        cmd.ExecuteNonQuery();
+
+                        instance.database.Close();
+                    }
+                }
             }
             //If not found in dictionary
             else if (focus.ProcessName != "Idle")
             {
+                //Get process
+                WProcess proc = procManager.getProcess(focus.ProcessName);
+
+                //If no process found, register new process
+                if(proc == null)
+                {
+                    //Add to process manager and get return
+                    proc = procManager.addProcess(focus);
+                }
+
                 //Add the newly focused process to the list
-                ProcessTimer p = new ProcessTimer(focus);
+                ProcessTimer p = new ProcessTimer(proc);
 
                 //Check for rules to add alarms
                 foreach (Rule r in Rules)
@@ -110,12 +158,12 @@ namespace ActiveWatcher
                 }
 
                 //Load previous time
-                if (prevTimes.ContainsKey(p.hook.ProcessName))
-                    p.secondsActive = prevTimes[p.hook.ProcessName];
+                //if (prevTimes.ContainsKey(p.process.processName))
+                //    p.secondsActive = prevTimes[p.process.processName];
 
                 ProcessTimer.total += p.secondsActive;
 
-                timers.Add(p.hook.ProcessName, p);
+                timers.Add(p.process.processName, p);
                 p.tick();
 
                 //Call the resize event
@@ -134,11 +182,11 @@ namespace ActiveWatcher
             XmlElement config = doc.CreateElement("Configuration");
             
             XmlElement val = doc.CreateElement("DisplayCount");
-            val.InnerText = displayCount.ToString();
+            val.InnerText = DISPLAYCOUNT.ToString();
             config.AppendChild(val);
 
             val = doc.CreateElement("IdleLimit");
-            val.InnerText = idleMax.ToString();
+            val.InnerText = IDLEMAX.ToString();
             config.AppendChild(val);
 
             val = doc.CreateElement("SaveTimes");
@@ -155,14 +203,20 @@ namespace ActiveWatcher
         void loadConfig()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load("Config.xml");
+            try
+            {
+                doc.Load("Config.xml");
+            }catch
+            {
+                return;
+            }
 
             try
             {
                 //Load idle seconds
-                idleMax = int.Parse(doc.FirstChild.SelectSingleNode("IdleLimit").InnerText);
+                IDLEMAX = int.Parse(doc.FirstChild.SelectSingleNode("IdleLimit").InnerText);
                 //Load timer display count
-                displayCount = int.Parse(doc.FirstChild.SelectSingleNode("DisplayCount").InnerText);
+                DISPLAYCOUNT = int.Parse(doc.FirstChild.SelectSingleNode("DisplayCount").InnerText);
                 //Load time saving switch
                 doSaveTimes = bool.Parse(doc.FirstChild.SelectSingleNode("SaveTimes").InnerText);
             }
@@ -176,7 +230,13 @@ namespace ActiveWatcher
         void loadRules()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load("Rules.xml");
+            try
+            {
+                doc.Load("Rules.xml");
+            }catch
+            {
+                return;
+            }
 
             bool err = false;
             foreach (XmlNode rule in doc.FirstChild)
@@ -212,7 +272,7 @@ namespace ActiveWatcher
                 XmlElement timer = doc.CreateElement("ProcessTime");
 
                 XmlElement val = doc.CreateElement("Process");
-                val.InnerText = p.hook.ProcessName;
+                val.InnerText = p.process.processName;
                 timer.AppendChild(val);
                 
                 val = doc.CreateElement("Time");
@@ -303,13 +363,7 @@ namespace ActiveWatcher
             CLOCK.Stop();
             timers.Clear();
             ProcessTimer.total = 0;
-            idleTimer = 0;
             CLOCK.Start();
-        }
-
-        public void resetIdle()
-        {
-            idleTimer = 0;
         }
 
         public void registerTick(System.Timers.ElapsedEventHandler func)
@@ -322,8 +376,8 @@ namespace ActiveWatcher
             CLOCK.Elapsed -= func;
         }
         #endregion
-        
-        public Dictionary<string, ProcessTimer> getProcesses()
+
+        public Dictionary<string, ProcessTimer> getTimers()
         {
             return timers;
         }
@@ -333,32 +387,29 @@ namespace ActiveWatcher
             CLOCK.Stop();
             CLOCK.Dispose();
         }
+
+        public static int GetInactiveTime()
+        {
+            LASTINPUTINFO info = new LASTINPUTINFO();
+            info.cbSize = (uint)Marshal.SizeOf(info);
+            if (GetLastInputInfo(ref info))
+                return TimeSpan.FromMilliseconds(Environment.TickCount - info.dwTime).Seconds;
+            else
+                return 0;
+        }
     }
     class ProcessTimer
     {
         public static int total = 0;
         public int secondsActive { get; internal set; }
-        public Process hook;
-        Image i;
+        public WProcess process;
         List<RuleAlarm> alarms;
 
-        public ProcessTimer(Process p)
+        public ProcessTimer(WProcess p,int s = 0)
         {
-            hook = p;
-            secondsActive = 0;
-            try {
-                i = Icon.ExtractAssociatedIcon(hook.MainModule.FileName).ToBitmap();
-            }
-            catch
-            {
-                i = null;
-            }
+            this.process = p;
+            secondsActive = s;
             alarms = new List<RuleAlarm>();
-        }
-
-        public int getSecs()
-        {
-            return secondsActive;
         }
 
         public override string ToString()
@@ -378,7 +429,7 @@ namespace ActiveWatcher
 
         public Image getIcon()
         {
-            return i;
+            return process.icon;
         }
 
         internal void applyRule(Rule r)
