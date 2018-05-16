@@ -123,7 +123,7 @@ namespace ActiveWatcher
                 {
                     //Parse icon into encoded string using stream reading
                     MemoryStream stream = new MemoryStream();
-                    p.icon.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                    p.icon.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
                     stream.Position = 0;
                     byte[] data = stream.ToArray();
                     iconText = Convert.ToBase64String(data);

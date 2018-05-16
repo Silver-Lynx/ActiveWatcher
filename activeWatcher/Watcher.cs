@@ -39,6 +39,7 @@ namespace ActiveWatcher
         public static int IDLEMAX = 30;
         public static int DISPLAYCOUNT = 5;
         public static bool doSaveTimes = true;
+        public static double HIDDENOPACITY = 0.2;
         public static string DBCONNECTION = @"Data Source=(LocalDB)\MSSQLLocalDB;
                 AttachDbFilename=|DataDirectory|\ProcessTimes.mdf;
                 Integrated Security=True";
@@ -193,6 +194,10 @@ namespace ActiveWatcher
             val.InnerText = doSaveTimes.ToString();
             config.AppendChild(val);
 
+            val = doc.CreateElement("HideOpacity");
+            val.InnerText = HIDDENOPACITY.ToString();
+            config.AppendChild(val);
+
             //Add Rules to main document
             doc.AppendChild(config);
 
@@ -215,8 +220,13 @@ namespace ActiveWatcher
             {
                 //Load idle seconds
                 IDLEMAX = int.Parse(doc.FirstChild.SelectSingleNode("IdleLimit").InnerText);
+
                 //Load timer display count
                 DISPLAYCOUNT = int.Parse(doc.FirstChild.SelectSingleNode("DisplayCount").InnerText);
+
+                //Load display hidden opacity
+                HIDDENOPACITY = double.Parse(doc.FirstChild.SelectSingleNode("HideOpacity")?.InnerText);
+
                 //Load time saving switch
                 doSaveTimes = bool.Parse(doc.FirstChild.SelectSingleNode("SaveTimes").InnerText);
             }

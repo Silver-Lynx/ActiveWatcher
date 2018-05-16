@@ -42,7 +42,6 @@ namespace ActiveWatcher
 
         public bool displaying = false;
         Timer ANIMTIMER;
-        double hideOpacity = 0.1;
         double targetOpacity;
         double opacitySpeed = 0.04;
 
@@ -59,7 +58,7 @@ namespace ActiveWatcher
             ANIMTIMER = new Timer();
             ANIMTIMER.Interval = 16;
             ANIMTIMER.Tick += ANIMTIMER_Tick;
-            targetOpacity = hideOpacity;
+            targetOpacity = Watcher.HIDDENOPACITY;
 
             w.onResize += W_resize;
             w.onTick += W_onTick;
@@ -285,7 +284,7 @@ namespace ActiveWatcher
 
         private void TimerHolder_MouseLeave(object sender, EventArgs e)
         {
-            targetOpacity = hideOpacity;
+            targetOpacity = Watcher.HIDDENOPACITY;
             if (!ANIMTIMER.Enabled) ANIMTIMER.Start();
         }
     }

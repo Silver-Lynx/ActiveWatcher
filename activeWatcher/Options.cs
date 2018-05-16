@@ -28,7 +28,8 @@ namespace ActiveWatcher
         private void btnApply_Click(object sender, EventArgs e)
         {
             Watcher.IDLEMAX = (int)numIdle.Value;
-            TimerHolder.instance.DisplayCount = (int)boxNumShow.Value;
+            Watcher.DISPLAYCOUNT = (int)boxNumShow.Value;
+            Watcher.HIDDENOPACITY = (double)numOpacity.Value / 100.0;
             Watcher.instance.saveConfig();
         }
 
