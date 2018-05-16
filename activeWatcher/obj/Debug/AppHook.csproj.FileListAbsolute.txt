@@ -1,9 +1,0 @@
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\bin\Debug\AppHook.exe.config
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\bin\Debug\AppHook.exe
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\bin\Debug\AppHook.pdb
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\obj\Debug\AppHook.TimerHolder.resources
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\obj\Debug\AppHook.Properties.Resources.resources
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\obj\Debug\AppHook.csproj.GenerateResource.Cache
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\obj\Debug\AppHook.exe
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\obj\Debug\AppHook.pdb
-c:\users\austin\documents\visual studio 2015\Projects\AppHook\AppHook\obj\Debug\AppHook.csprojResolveAssemblyReference.cache

@@ -1,8 +1,0 @@
-<Rules>
-  <Rule>
-    <Label>Any Program</Label>
-    <Process>*</Process>
-    <Limit>60</Limit>
-    <Action>MessageBox</Action>
-  </Rule>
-</Rules>
