@@ -152,7 +152,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(150, 25);
+            this.ClientSize = new System.Drawing.Size(120, 25);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.KeyPreview = true;
             this.MaximizeBox = false;
@@ -161,7 +161,8 @@
             this.ShowInTaskbar = false;
             this.Text = "ActiveWatch";
             this.TopMost = true;
-            this.Deactivate += new System.EventHandler(this.TimerHolder_Deactivate);
+            this.MouseEnter += new System.EventHandler(this.TimerHolder_MouseEnter);
+            this.MouseLeave += new System.EventHandler(this.TimerHolder_MouseLeave);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 

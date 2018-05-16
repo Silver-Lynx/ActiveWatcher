@@ -15,7 +15,7 @@ namespace ActiveWatcher
         public Options()
         {
             InitializeComponent();
-            numIdle.Value = Watcher.idleMax;
+            numIdle.Value = Watcher.IDLEMAX;
             boxNumShow.Value = TimerHolder.instance.DisplayCount;
             
         }
@@ -27,7 +27,7 @@ namespace ActiveWatcher
 
         private void btnApply_Click(object sender, EventArgs e)
         {
-            Watcher.idleMax = (int)numIdle.Value;
+            Watcher.IDLEMAX = (int)numIdle.Value;
             TimerHolder.instance.DisplayCount = (int)boxNumShow.Value;
             Watcher.instance.saveConfig();
         }

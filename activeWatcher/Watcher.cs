@@ -23,13 +23,23 @@ namespace ActiveWatcher
 
         [DllImport("user32")]
         private static extern UInt32 GetWindowThreadProcessId(Int32 hWnd, out Int32 lpdwProcessId);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LASTINPUTINFO
+        {
+            public uint cbSize;
+            public uint dwTime;
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
         #endregion
 
         #region Statics
-        public static int idleMax = 30;
-        public static int displayCount = 5;
-        public static bool doSaveTimes = false;
-        public static string DBConnection = @"Data Source=(LocalDB)\MSSQLLocalDB;
+        public static int IDLEMAX = 30;
+        public static int DISPLAYCOUNT = 5;
+        public static bool doSaveTimes = true;
+        public static string DBCONNECTION = @"Data Source=(LocalDB)\MSSQLLocalDB;
                 AttachDbFilename=|DataDirectory|\ProcessTimes.mdf;
                 Integrated Security=True";
         #endregion
@@ -38,7 +48,6 @@ namespace ActiveWatcher
         //Timers only shows processes that HAVE BEEN active
         Dictionary<string,ProcessTimer> timers;
         Dictionary<string, int> prevTimes;
-        int idleTimer = 0;
         Point mouseWatch = new Point(0, 0);
         ProcessManager procManager;
         SqlConnection database;
@@ -62,7 +71,7 @@ namespace ActiveWatcher
 
             //Load times
             //instance.loadTimes();
-            instance.database = new SqlConnection(DBConnection);
+            instance.database = new SqlConnection(DBCONNECTION);
         }
 
         private Watcher()
@@ -93,17 +102,37 @@ namespace ActiveWatcher
             Process focus = Process.GetProcessById(focusID);
 
             //Test for idle time
-            if (idleTimer++ > idleMax)
+            if (GetInactiveTime() > IDLEMAX)
                 focus = Process.GetCurrentProcess();
-            if (mouseWatch != Cursor.Position)
-                resetIdle();
-            mouseWatch = Cursor.Position;
+            //if (mouseWatch != Cursor.Position)
+            //    resetIdle();
+            //mouseWatch = Cursor.Position;
     
             //Check if focused ID is in timers
             if (timers.ContainsKey(focus.ProcessName))
             {
                 //If found, tick up that process timer
                 timers[focus.ProcessName].tick();
+
+                //If saving times
+                if (doSaveTimes)
+                {
+                    //Write tick to database
+                    using (SqlCommand cmd = new SqlCommand())
+                    {
+                        cmd.CommandText = "INSERT INTO process_time_data (time_stamp, process_ndx) VALUES (GETDATE(),@ndx)";
+                        cmd.Connection = instance.database;
+                        cmd.CommandType = System.Data.CommandType.Text;
+
+                        cmd.Parameters.Add("@ndx", System.Data.SqlDbType.Int).Value = timers[focus.ProcessName].process.ID;
+
+                        instance.database.Open();
+
+                        cmd.ExecuteNonQuery();
+
+                        instance.database.Close();
+                    }
+                }
             }
             //If not found in dictionary
             else if (focus.ProcessName != "Idle")
@@ -116,8 +145,6 @@ namespace ActiveWatcher
                 {
                     //Add to process manager and get return
                     proc = procManager.addProcess(focus);
-
-                    procManager.saveProcesses();
                 }
 
                 //Add the newly focused process to the list
@@ -155,11 +182,11 @@ namespace ActiveWatcher
             XmlElement config = doc.CreateElement("Configuration");
             
             XmlElement val = doc.CreateElement("DisplayCount");
-            val.InnerText = displayCount.ToString();
+            val.InnerText = DISPLAYCOUNT.ToString();
             config.AppendChild(val);
 
             val = doc.CreateElement("IdleLimit");
-            val.InnerText = idleMax.ToString();
+            val.InnerText = IDLEMAX.ToString();
             config.AppendChild(val);
 
             val = doc.CreateElement("SaveTimes");
@@ -187,9 +214,9 @@ namespace ActiveWatcher
             try
             {
                 //Load idle seconds
-                idleMax = int.Parse(doc.FirstChild.SelectSingleNode("IdleLimit").InnerText);
+                IDLEMAX = int.Parse(doc.FirstChild.SelectSingleNode("IdleLimit").InnerText);
                 //Load timer display count
-                displayCount = int.Parse(doc.FirstChild.SelectSingleNode("DisplayCount").InnerText);
+                DISPLAYCOUNT = int.Parse(doc.FirstChild.SelectSingleNode("DisplayCount").InnerText);
                 //Load time saving switch
                 doSaveTimes = bool.Parse(doc.FirstChild.SelectSingleNode("SaveTimes").InnerText);
             }
@@ -336,13 +363,7 @@ namespace ActiveWatcher
             CLOCK.Stop();
             timers.Clear();
             ProcessTimer.total = 0;
-            idleTimer = 0;
             CLOCK.Start();
-        }
-
-        public void resetIdle()
-        {
-            idleTimer = 0;
         }
 
         public void registerTick(System.Timers.ElapsedEventHandler func)
@@ -365,6 +386,16 @@ namespace ActiveWatcher
         {
             CLOCK.Stop();
             CLOCK.Dispose();
+        }
+
+        public static int GetInactiveTime()
+        {
+            LASTINPUTINFO info = new LASTINPUTINFO();
+            info.cbSize = (uint)Marshal.SizeOf(info);
+            if (GetLastInputInfo(ref info))
+                return TimeSpan.FromMilliseconds(Environment.TickCount - info.dwTime).Seconds;
+            else
+                return 0;
         }
     }
     class ProcessTimer

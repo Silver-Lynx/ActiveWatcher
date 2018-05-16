@@ -135,10 +135,10 @@
   <ItemGroup>
     <Content Include="ActiveWatcherIcon.ico" />
     <Content Include="ProcessTimes.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ProcessTimes_log.ldf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <DependentUpon>ProcessTimes.mdf</DependentUpon>
     </Content>
   </ItemGroup>
