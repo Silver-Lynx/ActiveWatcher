@@ -39,6 +39,7 @@ namespace ActiveWatcher
         Position pos;
         public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value; redraw(); } }
         Label[] plabels;
+        Label total;
 
         public bool displaying = false;
         Timer ANIMTIMER;
@@ -46,7 +47,7 @@ namespace ActiveWatcher
         double opacitySpeed = 0.04;
 
         int labelHeight = 24;
-        int labelWidth = 128;
+        int labelWidth = 150;
 
         public TimerHolder()
         {
@@ -117,6 +118,7 @@ namespace ActiveWatcher
                 if (l == null) continue;
                 l.Dispose();
             }
+            total?.Dispose();
 
             //Add labels back
             plabels = new Label[DisplayCount];
@@ -125,29 +127,21 @@ namespace ActiveWatcher
             int p = 0;
             while (p < processes.Count && p < plabels.Length)
             {
-                Label hold = new Label();
-                hold.Name = "Label" + p.ToString();
-                hold.Text = "";
-                hold.BackColor = System.Drawing.Color.Transparent;
-                hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
-                hold.Location = new System.Drawing.Point(0, p * labelHeight);
-                hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
-                hold.Margin = new System.Windows.Forms.Padding(0);
-                hold.TabIndex = 0;
-                hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-                hold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-
-                hold.MouseEnter += TimerHolder_MouseEnter;
-                hold.MouseLeave += TimerHolder_MouseLeave;
-
+                Label hold = makeLabel(p+1);
                 this.Controls.Add(hold);
                 this.plabels[p] = hold;
                 p++;
             }
 
+            //Total time label
+            total = makeLabel(0);
+            //total.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //total.Font = new Font(total.Font.FontFamily, 12);
+            this.Controls.Add(total);
+
 
             int num = processes.Count > DisplayCount ? DisplayCount : processes.Count;
-            this.ClientSize = new Size(labelWidth, labelHeight * (num < 1 ? 1 : num));
+            this.ClientSize = new Size(labelWidth, labelHeight * (num+1));
             switch (pos)
             {
                 case Position.TOP_LEFT:
@@ -169,6 +163,8 @@ namespace ActiveWatcher
                     this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width, Screen.PrimaryScreen.WorkingArea.Height - this.Height);
                     break;
             }
+
+
             updateLabels();
             this.Visible = true;
         }
@@ -181,21 +177,13 @@ namespace ActiveWatcher
                 // 
                 // TestLabel
                 // 
-                Label hold = new Label();
-                hold.Name = "Label" + ((processes.Count - 1) * labelHeight).ToString();
-                hold.Text = "";
-                hold.BackColor = System.Drawing.Color.Transparent;
-                hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
-                hold.Location = new System.Drawing.Point(0, (processes.Count-1)*labelHeight);
-                hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
-                hold.Margin = new System.Windows.Forms.Padding(0);
-                hold.TabIndex = 0;
-                hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-                hold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-
+                Label hold = makeLabel(processes.Count);
                 this.Controls.Add(hold);
                 this.plabels[processes.Count - 1] = hold;
             }
+
+            if (total != null)
+                total.Text = string.Format("{0:D}:{1:D2}:{2:D2}/100%", ProcessTimer.total / 3600, (ProcessTimer.total % 3600) / 60, ProcessTimer.total % 60);
 
             //Sort processes by time active
             List<ProcessTimer> sorted = processes.Values.ToList();
@@ -210,6 +198,26 @@ namespace ActiveWatcher
                     plabels[l].Image = sorted[l].getIcon();
                 }
             }
+        }
+
+        Label makeLabel(int position)
+        {
+            Label hold = new Label();
+            hold.Name = "Label" + position.ToString();
+            hold.Text = "";
+            hold.Font = new Font(FontFamily.GenericMonospace,10);
+            hold.BackColor = System.Drawing.Color.Transparent;
+            hold.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255, 255);
+            hold.Location = new System.Drawing.Point(0, position * labelHeight);
+            hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
+            hold.Margin = new System.Windows.Forms.Padding(0);
+            hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            hold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            hold.MouseEnter += TimerHolder_MouseEnter;
+            hold.MouseLeave += TimerHolder_MouseLeave;
+
+            return hold;
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)

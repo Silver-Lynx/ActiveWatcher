@@ -52,6 +52,7 @@ namespace ActiveWatcher
         Point mouseWatch = new Point(0, 0);
         ProcessManager procManager;
         SqlConnection database;
+        public int idleTime = 0;
 
         public delegate void resize(int processCount);
         public delegate void tick();
@@ -104,7 +105,7 @@ namespace ActiveWatcher
             string activeProcess = focus.ProcessName;
 
             //Test for idle time
-            if (GetInactiveTime() > IDLEMAX)
+            if (GetInactiveTime() >= IDLEMAX)
                 activeProcess = "IDLE";
             //if (mouseWatch != Cursor.Position)
             //    resetIdle();
@@ -406,9 +407,14 @@ namespace ActiveWatcher
             LASTINPUTINFO info = new LASTINPUTINFO();
             info.cbSize = (uint)Marshal.SizeOf(info);
             if (GetLastInputInfo(ref info))
-                return TimeSpan.FromMilliseconds(Environment.TickCount - info.dwTime).Seconds;
+            {
+                return (int)TimeSpan.FromMilliseconds(Environment.TickCount - info.dwTime).TotalSeconds;
+            }
             else
-                return 0;
+            {
+                instance.idleTime = -1;
+                return IDLEMAX;
+            }
         }
     }
     class ProcessTimer
@@ -427,7 +433,7 @@ namespace ActiveWatcher
 
         public override string ToString()
         {
-            return String.Format("{0:D}:{1:D2}:{2:D2} / {3,3:F0} %", (secondsActive / 3600), ((secondsActive % 3600) / 60), (secondsActive % 60), (secondsActive * 100f / total));
+            return String.Format("{0:D}:{1:D2}:{2:D2}/{3,3:F0}%", (secondsActive / 3600), ((secondsActive % 3600) / 60), (secondsActive % 60), (secondsActive * 100f / total));
         }
 
         public void tick()
