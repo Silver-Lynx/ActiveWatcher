@@ -241,7 +241,7 @@ namespace ActiveWatcher
             doc.AppendChild(config);
 
             //Save to File
-            doc.Save("Config.xml");
+            doc.Save("Data/Config.xml");
         }
 
         void loadConfig()
@@ -249,7 +249,7 @@ namespace ActiveWatcher
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("Config.xml");
+                doc.Load("Data/Config.xml");
             }catch
             {
                 return;
@@ -281,7 +281,7 @@ namespace ActiveWatcher
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("Rules.xml");
+                doc.Load("Data/Rules.xml");
             }catch
             {
                 return;
@@ -335,7 +335,7 @@ namespace ActiveWatcher
             doc.AppendChild(times);
 
             //Save to File
-            doc.Save("Times.xml");
+            doc.Save("Data/Times.xml");
 
         }
 
@@ -348,7 +348,7 @@ namespace ActiveWatcher
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("Times.xml");
+                doc.Load("Data/Times.xml");
             }
             catch
             {

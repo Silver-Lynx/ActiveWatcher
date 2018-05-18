@@ -1,3 +1,4 @@
 activeWatcher/obj/*
 activeWatcher/bin/*
 .vs/*
+Release/Data/*

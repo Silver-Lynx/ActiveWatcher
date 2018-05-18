@@ -84,7 +84,7 @@ namespace ActiveWatcher
             doc.AppendChild(rules);
 
             //Save to File
-            doc.Save("Rules.xml");
+            doc.Save("Data/Rules.xml");
 
             MessageBox.Show("Saved to file.","Save Rules");
         }

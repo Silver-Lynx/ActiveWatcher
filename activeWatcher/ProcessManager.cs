@@ -41,6 +41,9 @@ namespace ActiveWatcher
 
             [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
             static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+            [DllImport("user32.dll")]
+            static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
         #endregion
 
         Dictionary<string, WProcess> processes;
@@ -157,7 +160,7 @@ namespace ActiveWatcher
             {
                 icon = GetAppIcon(p.MainWindowHandle)?.ToBitmap();
                 if (icon == null)
-                    icon = Icon.ExtractAssociatedIcon(p.MainModule.FileName).ToBitmap();
+                    icon = Icon.ExtractAssociatedIcon(p.MainModule.FileName)?.ToBitmap();
             }
             catch
             {
@@ -168,6 +171,12 @@ namespace ActiveWatcher
             try
             {
                 s = p.MainModule.FileVersionInfo.FileDescription;
+                if (s == null || s.Length < 1)
+                {
+                    StringBuilder sb = new StringBuilder(256);
+                    GetWindowText(p.MainWindowHandle, sb, 256);
+                    s = sb.ToString() ?? "Unknown Title";
+                }
             }
             catch
             {

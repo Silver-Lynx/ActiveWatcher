@@ -28,8 +28,8 @@ namespace ActiveWatcher
             int ptr = 1;
             foreach(ProcessTimer t in Watcher.instance.getTimers().Values)
             {
-                //Dont include this program
-                if (t.process.processName == "ActiveWatcher") continue;
+                //Dont include this program, or idle processes
+                if (t.process.processName == "ActiveWatcher" || t.process.processName == "Idle" || t.process.processName == Watcher.IDLENAME) continue;
 
                 //Add the program root process as key and the display name as value
                 programData[ptr++] = new KeyValuePair<string, string>(t.process.processName, t.process.commonName);

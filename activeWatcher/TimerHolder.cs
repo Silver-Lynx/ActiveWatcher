@@ -195,6 +195,7 @@ namespace ActiveWatcher
                 if (plabels[l] != null)
                 {
                     plabels[l].Text = sorted[l].ToString();
+                    toolTip1.SetToolTip(plabels[l], sorted[l].process.commonName);
                     plabels[l].Image = sorted[l].getIcon();
                 }
             }
