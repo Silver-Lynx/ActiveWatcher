@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -40,9 +41,13 @@ namespace ActiveWatcher
         public static int DISPLAYCOUNT = 5;
         public static bool doSaveTimes = true;
         public static double HIDDENOPACITY = 0.2;
+        public const string IDLENAME = "ACTIVEWATCHERIDLE";
+        /*
         public static string DBCONNECTION = @"Data Source=(LocalDB)\MSSQLLocalDB;
                 AttachDbFilename=|DataDirectory|\ProcessTimes.mdf;
                 Integrated Security=True";
+        */
+        public static string DBCONNECTION = @"Data Source = Data/ProcessData.sqlite";
         #endregion
 
         System.Timers.Timer CLOCK;
@@ -51,7 +56,7 @@ namespace ActiveWatcher
         Dictionary<string, int> prevTimes;
         Point mouseWatch = new Point(0, 0);
         ProcessManager procManager;
-        SqlConnection database;
+        SQLiteConnection database;
         public int idleTime = 0;
 
         public delegate void resize(int processCount);
@@ -65,6 +70,34 @@ namespace ActiveWatcher
             if (instance != null) return;
             instance = new Watcher();
             instance.procManager = new ProcessManager();
+            
+            //Create data directory if needed
+            if (!System.IO.Directory.Exists("Data")) System.IO.Directory.CreateDirectory("Data");
+
+            //Create database file if needed
+            if (!System.IO.File.Exists("Data/ProcessData.sqlite")) SQLiteConnection.CreateFile("Data/ProcessData.sqlite");
+
+            //Make database connection and connect
+            instance.database = new SQLiteConnection("Data Source=Data/ProcessData.sqlite");
+
+            instance.database.Open();
+
+            //Create tables if needed
+            using (SQLiteCommand makeTables = new SQLiteCommand(
+                    @"CREATE TABLE IF NOT EXISTS
+                    [process_ref] (
+                    [process_ndx]     INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    [process_name]   VARCHAR(30) NULL,
+                    [common_name]   VARCHAR(50) NULL,
+                    [icon]          VARCHAR NULL);
+                    CREATE TABLE IF NOT EXISTS
+                    [process_time_data] (
+                    [time_stamp]    DATETIME NOT NULL PRIMARY KEY UNIQUE,
+                    [process_ndx]   INTEGER NULL);", instance.database))
+                makeTables.ExecuteNonQuery();
+
+            instance.database.Close();
+
             instance.procManager.loadProcesses();
 
             //Load rules
@@ -72,8 +105,8 @@ namespace ActiveWatcher
             instance.loadRules();
 
             //Load times
-            //instance.loadTimes();
-            instance.database = new SqlConnection(DBCONNECTION);
+            instance.loadTimes();
+
         }
 
         private Watcher()
@@ -104,9 +137,11 @@ namespace ActiveWatcher
             Process focus = Process.GetProcessById(focusID);
             string activeProcess = focus.ProcessName;
 
+            int idleTime = GetInactiveTime();
+
             //Test for idle time
-            if (GetInactiveTime() >= IDLEMAX)
-                activeProcess = "IDLE";
+            if (idleTime >= IDLEMAX)
+                activeProcess = IDLENAME;
             //if (mouseWatch != Cursor.Position)
             //    resetIdle();
             //mouseWatch = Cursor.Position;
@@ -121,13 +156,13 @@ namespace ActiveWatcher
                 if (doSaveTimes)
                 {
                     //Write tick to database
-                    using (SqlCommand cmd = new SqlCommand())
+                    using (SQLiteCommand cmd = new SQLiteCommand())
                     {
-                        cmd.CommandText = "INSERT INTO process_time_data (time_stamp, process_ndx) VALUES (GETDATE(),@ndx)";
-                        cmd.Connection = instance.database;
+                        cmd.CommandText = "INSERT INTO process_time_data (time_stamp, process_ndx) VALUES (DATETIME('now'),@ndx)";
+                        cmd.Connection =   instance.database;
                         cmd.CommandType = System.Data.CommandType.Text;
 
-                        cmd.Parameters.Add("@ndx", System.Data.SqlDbType.Int).Value = timers[activeProcess].process.ID;
+                        cmd.Parameters.Add("@ndx", System.Data.DbType.Int32).Value = timers[activeProcess].process.ID;
 
                         instance.database.Open();
 
@@ -154,7 +189,7 @@ namespace ActiveWatcher
                 ProcessTimer p = new ProcessTimer(proc);
 
                 //Dont apply rules to idle process
-                if (activeProcess != "IDLE")
+                if (activeProcess != IDLENAME)
                     //Check for rules to add alarms
                     foreach (Rule r in Rules)
                     {
@@ -306,6 +341,8 @@ namespace ActiveWatcher
 
         void loadTimes()
         {
+            return;
+
             prevTimes = new Dictionary<string, int>();
 
             XmlDocument doc = new XmlDocument();
@@ -408,11 +445,10 @@ namespace ActiveWatcher
             info.cbSize = (uint)Marshal.SizeOf(info);
             if (GetLastInputInfo(ref info))
             {
-                return (int)TimeSpan.FromMilliseconds(Environment.TickCount - info.dwTime).TotalSeconds;
+                return (int)TimeSpan.FromMilliseconds((uint)Environment.TickCount - info.dwTime).TotalSeconds;
             }
             else
             {
-                instance.idleTime = -1;
                 return IDLEMAX;
             }
         }

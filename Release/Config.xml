@@ -1,0 +1,6 @@
+<Configuration>
+  <DisplayCount>5</DisplayCount>
+  <IdleLimit>10</IdleLimit>
+  <SaveTimes>True</SaveTimes>
+  <HideOpacity>0.1</HideOpacity>
+</Configuration>

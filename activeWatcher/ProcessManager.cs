@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -54,14 +55,14 @@ namespace ActiveWatcher
         {
             processes?.Clear();
 
-            processes.Add("IDLE",new WProcess(-1, "IDLE", "User Idle", Properties.Resources.ZZZ));
+            processes.Add(Watcher.IDLENAME,new WProcess(-1, Watcher.IDLENAME, "User Idle", Properties.Resources.ZZZ));
 
             //Open DB connection
-            SqlConnection database = new SqlConnection(Watcher.DBCONNECTION);
+            SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
             database.Open();
             
             //Do query for processes
-            using (SqlCommand comm = new SqlCommand())
+            using (SQLiteCommand comm = new SQLiteCommand())
             {
                 //Build command
                 comm.CommandType = System.Data.CommandType.Text;
@@ -69,7 +70,7 @@ namespace ActiveWatcher
                 comm.Connection = database;
 
                 //Run command and get data
-                using (SqlDataReader data = comm.ExecuteReader())
+                using (SQLiteDataReader data = comm.ExecuteReader())
                 {
                     //Data exists
                     if (data.HasRows)
@@ -111,15 +112,16 @@ namespace ActiveWatcher
         internal void saveProcess(WProcess p)
         {
             //Open DB connection
-            SqlConnection database = new SqlConnection(Watcher.DBCONNECTION);
+            SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
             database.Open();
 
             //Do query for processes
-            using (SqlCommand comm = new SqlCommand())
+            using (SQLiteCommand comm = new SQLiteCommand())
             {
                 //Build command
                 comm.CommandType = System.Data.CommandType.Text;
-                comm.CommandText = "INSERT INTO process_ref (process_name, common_name, icon) OUTPUT INSERTED.process_ndx VALUES (@pname, @cname, @icon)";
+                comm.CommandText = @"INSERT INTO process_ref (process_name, common_name, icon) 
+                    VALUES (@pname, @cname, @icon);";
                 comm.Connection = database;
 
                 string iconText = "";
@@ -133,11 +135,12 @@ namespace ActiveWatcher
                     iconText = Convert.ToBase64String(data);
                 }
 
-                comm.Parameters.Add("@pname", System.Data.SqlDbType.NVarChar).Value = p.processName;
-                comm.Parameters.Add("@cname", System.Data.SqlDbType.NVarChar).Value = p.commonName;
-                comm.Parameters.Add("@icon", System.Data.SqlDbType.NVarChar).Value = iconText;
+                comm.Parameters.Add("@pname", System.Data.DbType.AnsiString).Value = p.processName;
+                comm.Parameters.Add("@cname", System.Data.DbType.AnsiString).Value = p.commonName;
+                comm.Parameters.Add("@icon", System.Data.DbType.AnsiString).Value = iconText;
 
-                int id = (int)comm.ExecuteScalar();
+                comm.ExecuteNonQuery();
+                int id = (int)database.LastInsertRowId;
 
                 if (id > 0) maxID = id;
 
@@ -146,47 +149,7 @@ namespace ActiveWatcher
             }
             database.Close();
         }
-
-
-        internal void saveProcesses()
-        {
-            //Open DB connection
-            SqlConnection database = new SqlConnection(Watcher.DBCONNECTION);
-            database.Open();
-
-            //Do query for processes
-            using (SqlCommand comm = new SqlCommand())
-            {
-                //Build command
-                comm.CommandType = System.Data.CommandType.Text;
-                comm.CommandText = "INSERT INTO process_ref (process_name, common_name, icon) VALUES (@pname, @cname, @icon)";
-                comm.Connection = database;
-
-                foreach(WProcess p in processes.Values) {
-
-                    string iconText = "";
-                    if (p.icon != null)
-                    {
-                        //Parse icon into encoded string using stream reading
-                        MemoryStream stream = new MemoryStream();
-                        p.icon.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                        stream.Position = 0;
-                        byte[] data = stream.ToArray();
-                        iconText = Convert.ToBase64String(data);
-                    }
-
-                    comm.Parameters.Add("@pname", System.Data.SqlDbType.NVarChar).Value = p.processName;
-                    comm.Parameters.Add("@cname", System.Data.SqlDbType.NVarChar).Value = p.commonName;
-                    comm.Parameters.Add("@icon", System.Data.SqlDbType.NVarChar).Value = iconText;
-
-                    comm.ExecuteNonQuery();
-
-                    comm.Parameters.Clear();
-                }
-            }
-            database.Close();
-        }
-
+        
         internal WProcess addProcess(Process p)
         {
             Bitmap icon;
