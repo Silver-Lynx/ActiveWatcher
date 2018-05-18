@@ -92,7 +92,7 @@ namespace ActiveWatcher
                     [icon]          VARCHAR NULL);
                     CREATE TABLE IF NOT EXISTS
                     [process_time_data] (
-                    [time_stamp]    DATETIME NOT NULL PRIMARY KEY UNIQUE,
+                    [time_stamp]    DATETIME NOT NULL,
                     [process_ndx]   INTEGER NULL);", instance.database))
                 makeTables.ExecuteNonQuery();
 
