@@ -21,18 +21,18 @@ namespace ActiveWatcher
 
             #region Dropdown - Program list
             //Make set of key,value pairs to display in list
-            KeyValuePair<string, string>[] programData = new KeyValuePair<string, string>[Watcher.instance.getTimers().Count+1];
+            KeyValuePair<string, string>[] programData = new KeyValuePair<string, string>[Watcher.instance.procManager.getProcessCount()+1];
             programData[0] = new KeyValuePair<string, string>("*", "Any Program");
 
             //Populate array with the process values
             int ptr = 1;
-            foreach(ProcessTimer t in Watcher.instance.getTimers().Values)
+            foreach(WProcess process in Watcher.instance.procManager.processes.Values)
             {
                 //Dont include this program, or idle processes
-                if (t.process.processName == "ActiveWatcher" || t.process.processName == "Idle" || t.process.processName == Watcher.IDLENAME) continue;
+                if (process.processName == "ActiveWatcher" || process.processName == "Idle" || process.processName == Watcher.IDLENAME) continue;
 
                 //Add the program root process as key and the display name as value
-                programData[ptr++] = new KeyValuePair<string, string>(t.process.processName, t.process.commonName);
+                programData[ptr++] = new KeyValuePair<string, string>(process.processName, process.commonName);
             }
             //Set properties on Dropdown
             ddProgram.DataSource = programData;

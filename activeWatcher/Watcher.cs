@@ -55,7 +55,7 @@ namespace ActiveWatcher
         Dictionary<string,ProcessTimer> timers;
         Dictionary<string, int> prevTimes;
         Point mouseWatch = new Point(0, 0);
-        ProcessManager procManager;
+        public ProcessManager procManager { get; private set; }
         SQLiteConnection database;
         public int idleTime = 0;
 
@@ -67,12 +67,12 @@ namespace ActiveWatcher
 
         public static void initialize()
         {
+            //Create data directory if needed
+            if (!System.IO.Directory.Exists("Data")) System.IO.Directory.CreateDirectory("Data");
+
             if (instance != null) return;
             instance = new Watcher();
             instance.procManager = new ProcessManager();
-            
-            //Create data directory if needed
-            if (!System.IO.Directory.Exists("Data")) System.IO.Directory.CreateDirectory("Data");
 
             //Create database file if needed
             if (!System.IO.File.Exists("Data/ProcessData.sqlite")) SQLiteConnection.CreateFile("Data/ProcessData.sqlite");
@@ -173,7 +173,7 @@ namespace ActiveWatcher
                 }
             }
             //If not found in dictionary
-            else
+            else if(activeProcess != "Idle")
             {
                 //Get process
                 WProcess proc = procManager.getProcess(activeProcess);

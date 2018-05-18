@@ -33,7 +33,17 @@ namespace ActiveWatcher
                     return new IntPtr(GetClassLongPtr32(hWnd, nIndex));
             }
 
-            [DllImport("user32.dll", EntryPoint = "GetClassLong")]
+        internal int getProcessCount()
+        {
+            int protectedProcesses = 0;
+            if (processes.ContainsKey("ActiveWatcher")) ++protectedProcesses;
+            if (processes.ContainsKey(Watcher.IDLENAME)) ++protectedProcesses;
+            if (processes.ContainsKey("Idle")) ++protectedProcesses;
+
+            return processes.Count - protectedProcesses;
+        }
+
+        [DllImport("user32.dll", EntryPoint = "GetClassLong")]
             static extern uint GetClassLongPtr32(IntPtr hWnd, int nIndex);
 
             [DllImport("user32.dll", EntryPoint = "GetClassLongPtr")]
@@ -46,7 +56,7 @@ namespace ActiveWatcher
             static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
         #endregion
 
-        Dictionary<string, WProcess> processes;
+        internal Dictionary<string, WProcess> processes { get; private set; }
         int maxID = 0;
 
         public ProcessManager()
