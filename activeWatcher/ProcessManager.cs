@@ -91,17 +91,8 @@ namespace ActiveWatcher
                         //While data still exists
                         while (data.Read())
                         {
-                            //Parse encoded icon into Image object using stream reading
-                            byte[] iconData = Convert.FromBase64String(data.GetString(3));
-                            //Make stream and fill with string
-                            MemoryStream stream = new MemoryStream();
-                            BinaryWriter writer = new BinaryWriter(stream);
-                            writer.Write(iconData);
-                            //Move pointer to start of stream
-                            writer.Flush();
-                            stream.Position = 0;
-                            //Load stream as image
-                            Image icon = Bitmap.FromStream(stream);
+                            //Decode icon
+                            Image icon = Utility.imageFromString(data.GetString(3));
 
                             //Add process to list
                             processes.Add(data.GetString(1),
@@ -140,12 +131,7 @@ namespace ActiveWatcher
                 string iconText = "";
                 if (p.icon != null)
                 {
-                    //Parse icon into encoded string using stream reading
-                    MemoryStream stream = new MemoryStream();
-                    p.icon.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                    stream.Position = 0;
-                    byte[] data = stream.ToArray();
-                    iconText = Convert.ToBase64String(data);
+                    iconText = Utility.stringFromImage(p.icon);
                 }
 
                 comm.Parameters.Add("@pname", System.Data.DbType.AnsiString).Value = p.processName;

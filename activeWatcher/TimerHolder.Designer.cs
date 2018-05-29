@@ -45,6 +45,8 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.viewTimelineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,25 +61,27 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.viewTimelineToolStripMenuItem,
+            this.toolStripSeparator2,
             this.reset,
             this.optionsToolStripMenuItem,
             this.positionToolStripMenuItem,
             this.toolStripSeparator1,
             this.closeToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(142, 98);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 148);
             // 
             // reset
             // 
             this.reset.Name = "reset";
-            this.reset.Size = new System.Drawing.Size(141, 22);
+            this.reset.Size = new System.Drawing.Size(152, 22);
             this.reset.Text = "Reset Timers";
             this.reset.Click += new System.EventHandler(this.reset_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.optionsToolStripMenuItem.Text = "Options...";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -91,7 +95,7 @@
             this.posTL,
             this.posTC});
             this.positionToolStripMenuItem.Name = "positionToolStripMenuItem";
-            this.positionToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.positionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.positionToolStripMenuItem.Text = "Position";
             // 
             // posBR
@@ -139,14 +143,26 @@
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(138, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+            // 
+            // viewTimelineToolStripMenuItem
+            // 
+            this.viewTimelineToolStripMenuItem.Name = "viewTimelineToolStripMenuItem";
+            this.viewTimelineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.viewTimelineToolStripMenuItem.Text = "View Timeline";
+            this.viewTimelineToolStripMenuItem.Click += new System.EventHandler(this.viewTimelineToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // TimerHolder
             // 
@@ -185,6 +201,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem reset;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolStripMenuItem viewTimelineToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
     }
 }
 

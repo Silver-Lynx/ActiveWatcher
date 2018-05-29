@@ -299,5 +299,10 @@ namespace ActiveWatcher
             targetOpacity = Watcher.HIDDENOPACITY;
             if (!ANIMTIMER.Enabled) ANIMTIMER.Start();
         }
+
+        private void viewTimelineToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new Timeline().Show();
+        }
     }
 }
