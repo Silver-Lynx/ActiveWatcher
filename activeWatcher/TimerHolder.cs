@@ -38,8 +38,9 @@ namespace ActiveWatcher
         Dictionary<string,ProcessTimer> processes;
         Position pos;
         public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value; redraw(); } }
-        Label[] plabels;
-        Label total;
+        IconLabel[] plabels;
+        IconLabel total;
+        MouseMoveMessageFilter mmmf;
 
         public bool displaying = false;
         Timer ANIMTIMER;
@@ -57,7 +58,7 @@ namespace ActiveWatcher
             w = Watcher.instance;
             processes = w.getTimers();
             pos = Position.BOTTOM_RIGHT;
-            plabels = new Label[DisplayCount];
+            plabels = new IconLabel[DisplayCount];
 
             ANIMTIMER = new Timer();
             ANIMTIMER.Interval = 16;
@@ -66,6 +67,11 @@ namespace ActiveWatcher
 
             w.onResize += W_resize;
             w.onTick += W_onTick;
+
+            MouseMoveMessageFilter m = new MouseMoveMessageFilter(this);
+            m.onMouseEnter += TimerHolder_MouseEnter;
+            m.onMouseLeave += TimerHolder_MouseLeave;
+            Application.AddMessageFilter(m);
         }
 
         public void display()
@@ -113,7 +119,7 @@ namespace ActiveWatcher
         private void redraw()
         {
             //Unload previous labels
-            foreach (Label l in plabels)
+            foreach (IconLabel l in plabels)
             {
                 if (l == null) continue;
                 l.Dispose();
@@ -121,13 +127,13 @@ namespace ActiveWatcher
             total?.Dispose();
 
             //Add labels back
-            plabels = new Label[DisplayCount];
+            plabels = new IconLabel[DisplayCount];
 
             //Loop through and rebuild labels
             int p = 0;
             while (p < processes.Count && p < plabels.Length)
             {
-                Label hold = makeLabel(p+1);
+                IconLabel hold = makeLabel(p+1);
                 this.Controls.Add(hold);
                 this.plabels[p] = hold;
                 p++;
@@ -177,7 +183,7 @@ namespace ActiveWatcher
                 // 
                 // TestLabel
                 // 
-                Label hold = makeLabel(processes.Count);
+                IconLabel hold = makeLabel(processes.Count);
                 this.Controls.Add(hold);
                 this.plabels[processes.Count - 1] = hold;
             }
@@ -197,12 +203,15 @@ namespace ActiveWatcher
                     plabels[l].Text = sorted[l].ToString();
                     toolTip1.SetToolTip(plabels[l], sorted[l].process.commonName);
                     plabels[l].Image = sorted[l].getIcon();
+                    plabels[l].fillPercent = (double)sorted[l].secondsActive / ProcessTimer.total;
+                    plabels[l].Refresh();
                 }
             }
         }
 
-        Label makeLabel(int position)
+        IconLabel makeLabel(int position)
         {
+            /*
             Label hold = new Label();
             hold.Name = "Label" + position.ToString();
             hold.Text = "";
@@ -214,9 +223,13 @@ namespace ActiveWatcher
             hold.Margin = new System.Windows.Forms.Padding(0);
             hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             hold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            */
+            IconLabel hold = new IconLabel();
+            hold.Location = new System.Drawing.Point(0, position * labelHeight);
+            hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
 
-            hold.MouseEnter += TimerHolder_MouseEnter;
-            hold.MouseLeave += TimerHolder_MouseLeave;
+            //hold.MouseEnter += TimerHolder_MouseEnter;
+            //hold.MouseLeave += TimerHolder_MouseLeave;
 
             return hold;
         }
@@ -269,12 +282,12 @@ namespace ActiveWatcher
         {
             w.resetAll();
             processes = w.getTimers();
-            foreach(Label l in plabels)
+            foreach(IconLabel l in plabels)
             {
                 if(l != null)
                     l.Dispose();
             }
-            plabels = new Label[DisplayCount];
+            plabels = new IconLabel[DisplayCount];
             redraw();
         }
 
@@ -303,6 +316,67 @@ namespace ActiveWatcher
         private void viewTimelineToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new Timeline().Show();
+        }
+
+        class MouseMoveMessageFilter : IMessageFilter
+        {
+            private const int WM_NCMOUSEMOVE = 0x00A0;
+            private const int WM_MOUSEMOVE = 0x200;
+            private const int WM_NCMOUSELEAVE = 0x02A2;
+            private const int WM_MOUSELEAVE = 0x02A3;
+
+            public event EventHandler onMouseEnter;
+            public event EventHandler onMouseLeave;
+            public TimerHolder TargetForm { get; set; }
+            bool mouseInside = false;
+
+            public MouseMoveMessageFilter(TimerHolder t)
+            {
+                TargetForm = t;
+            }
+
+            public bool PreFilterMessage(ref Message m)
+            {
+                if (TargetForm == null) return false;
+
+                switch (m.Msg)
+                {
+                    case WM_MOUSEMOVE:
+                    case WM_NCMOUSEMOVE:
+                        CheckMouseBounds(true);
+                        break;
+
+                    case WM_NCMOUSELEAVE:
+                    case WM_MOUSELEAVE:
+                        CheckMouseBounds(false);
+                        break;
+                }
+
+                return false;
+            }
+
+            void CheckMouseBounds(bool inside)
+            {
+                //Already inside and just moving, skip
+                if (mouseInside && inside) return;
+
+                //Check if still inside
+                bool check = TargetForm.Bounds.Contains(Cursor.Position);
+
+                if(mouseInside != check)
+                {
+                    mouseInside = check;
+
+                    //Moved inside
+                    if (mouseInside)
+                        onMouseEnter?.Invoke(TargetForm,EventArgs.Empty);
+
+                    //Moved outside
+                    if (!mouseInside)
+                        onMouseLeave?.Invoke(TargetForm, EventArgs.Empty);
+
+                }
+            }
         }
     }
 }

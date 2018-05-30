@@ -37,7 +37,6 @@
             this.picLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.picLabel.BackColor = System.Drawing.Color.Transparent;
-            this.picLabel.Image = global::ActiveWatcher.Properties.Resources.ZZZ;
             this.picLabel.Location = new System.Drawing.Point(0, 0);
             this.picLabel.Name = "picLabel";
             this.picLabel.Size = new System.Drawing.Size(32, 28);
