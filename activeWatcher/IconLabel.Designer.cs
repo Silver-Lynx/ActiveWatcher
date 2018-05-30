@@ -56,7 +56,7 @@
             this.textLabel.Size = new System.Drawing.Size(118, 28);
             this.textLabel.TabIndex = 0;
             this.textLabel.Text = "Microsoft Visual Studio";
-            this.textLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.textLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // IconLabel
             // 

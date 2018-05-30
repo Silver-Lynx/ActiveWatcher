@@ -49,6 +49,7 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
+            this.Icon = Properties.Resources.ActiveWatcherIcon;
             // 
             // Notify
             // 

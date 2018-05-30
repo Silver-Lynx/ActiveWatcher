@@ -13,7 +13,7 @@ namespace ActiveWatcher
 {
     public partial class IconLabel : UserControl
     {
-        public string displayText { get { return textLabel.Text; } set { textLabel.Text = value; textLabel.Refresh(); } }
+        public string displayText { get { return textLabel.Text; } set { textLabel.Text = value; textLabel.Invalidate(); } }
 
         public string toolTipText { get; set; } = "";
 

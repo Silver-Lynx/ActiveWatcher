@@ -40,7 +40,6 @@ namespace ActiveWatcher
         public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value; redraw(); } }
         IconLabel[] plabels;
         IconLabel total;
-        MouseMoveMessageFilter mmmf;
 
         public bool displaying = false;
         Timer ANIMTIMER;
@@ -189,7 +188,7 @@ namespace ActiveWatcher
             }
 
             if (total != null)
-                total.Text = string.Format("{0:D}:{1:D2}:{2:D2}/100%", ProcessTimer.total / 3600, (ProcessTimer.total % 3600) / 60, ProcessTimer.total % 60);
+                total.displayText = string.Format("{0:D}:{1:D2}:{2:D2}/100%", ProcessTimer.total / 3600, (ProcessTimer.total % 3600) / 60, ProcessTimer.total % 60);
 
             //Sort processes by time active
             List<ProcessTimer> sorted = processes.Values.ToList();
@@ -200,7 +199,7 @@ namespace ActiveWatcher
             {
                 if (plabels[l] != null)
                 {
-                    plabels[l].Text = sorted[l].ToString();
+                    plabels[l].displayText = sorted[l].ToString();
                     toolTip1.SetToolTip(plabels[l], sorted[l].process.commonName);
                     plabels[l].Image = sorted[l].getIcon();
                     plabels[l].fillPercent = (double)sorted[l].secondsActive / ProcessTimer.total;
