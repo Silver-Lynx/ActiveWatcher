@@ -43,9 +43,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cartesianChart1.ForeColor = System.Drawing.Color.White;
-            this.cartesianChart1.Location = new System.Drawing.Point(12, 41);
+            this.cartesianChart1.Location = new System.Drawing.Point(9, 41);
+            this.cartesianChart1.Margin = new System.Windows.Forms.Padding(0);
             this.cartesianChart1.Name = "cartesianChart1";
-            this.cartesianChart1.Size = new System.Drawing.Size(473, 434);
+            this.cartesianChart1.Padding = new System.Windows.Forms.Padding(10);
+            this.cartesianChart1.Size = new System.Drawing.Size(476, 437);
             this.cartesianChart1.TabIndex = 0;
             this.cartesianChart1.Text = "timeChart";
             // 
@@ -55,9 +57,7 @@
             this.dateType.FormattingEnabled = true;
             this.dateType.Items.AddRange(new object[] {
             "Hours",
-            "Days",
-            "Months",
-            "Years"});
+            "Days"});
             this.dateType.Location = new System.Drawing.Point(165, 14);
             this.dateType.Name = "dateType";
             this.dateType.Size = new System.Drawing.Size(80, 21);
@@ -66,11 +66,6 @@
             // dateValue
             // 
             this.dateValue.Location = new System.Drawing.Point(109, 14);
-            this.dateValue.Maximum = new decimal(new int[] {
-            365,
-            0,
-            0,
-            0});
             this.dateValue.Minimum = new decimal(new int[] {
             1,
             0,

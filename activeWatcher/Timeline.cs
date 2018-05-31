@@ -26,14 +26,6 @@ namespace ActiveWatcher
 
             dateType.SelectedIndex = 0;
 
-            cartesianChart1.AxisX.Add(new Axis {
-                LabelFormatter = value => new System.DateTime((long)value).ToString("t"),
-                Separator = new Separator
-                {
-                    Step = TimeSpan.FromHours(1).Ticks
-                }
-            });
-
             cartesianChart1.AxisY.Add(new Axis
             {
                 MinValue = 0,
@@ -51,17 +43,47 @@ namespace ActiveWatcher
             SeriesCollection timeSeries = new SeriesCollection();
 
             //Create a dictionary of chart values defined as datetime-int pairs, representing all lines to be drawn, linked to their index
-            Dictionary<int, LineSeries> seriesHold = new Dictionary<int, LineSeries>();
+            Dictionary<int, StackedColumnSeries> seriesHold = new Dictionary<int, StackedColumnSeries>();
 
             //Get time type
             string dateString = ((string)dateType.SelectedItem).ToUpper();
-
+            double hourMult;
+            switch (dateString)
+            {
+                case "HOURS":
+                    hourMult = 1.0;
+                    break;
+                case "DAYS":
+                    hourMult = 24.0;
+                    break;
+                default:
+                    hourMult = 0.0;
+                    break;
+            }
             //Get time value
             int dateVal = (int)dateValue.Value;
 
             //Reset Axes
-            cartesianChart1.AxisX[0].MinValue = DateTime.Now.AddHours(-1.0 * dateVal).Ticks;
-            cartesianChart1.AxisX[0].MaxValue = DateTime.Now.Ticks;
+            cartesianChart1.Series.Configuration = Mappers.Xy<DateTimePoint>()
+                .X(value => (double)value.DateTime.Ticks / TimeSpan.FromMinutes(hourMult == 24.0 ? 60 : 1).Ticks)
+                .Y(value => value.Value);
+
+            cartesianChart1.AxisX.Clear();
+
+            cartesianChart1.AxisX.Add(new Axis
+            {
+                MinValue = (double)DateTime.Now.AddHours(-1 * dateVal * hourMult).Ticks / TimeSpan.FromMinutes(hourMult == 24.0 ? 60 : 1).Ticks,
+                MaxValue = (double)DateTime.Now.Ticks / TimeSpan.FromMinutes(hourMult == 24.0 ? 60 : 1).Ticks,
+                Separator = new Separator
+                {
+                    Step = hourMult == 24.0 ? 12 : 30,
+                    IsEnabled = true
+                },
+
+                LabelFormatter = value => new DateTime((long)(value * TimeSpan.FromMinutes(hourMult == 24.0 ? 60 : 1).Ticks)).ToString("t")
+            });
+
+            cartesianChart1.AxisY[0].MaxValue = hourMult == 24.0 ? 3600 : 60;
 
             //Open DB connection
             SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
@@ -74,13 +96,13 @@ namespace ActiveWatcher
                 comm.CommandType = System.Data.CommandType.Text;
                 comm.CommandText = string.Format(@"
                     SELECT COALESCE(p.process_ndx,0) AS 'process_ndx', t.counter, t.time_stamp
-                    FROM ( SELECT process_ndx, COUNT(*) AS 'counter', DATETIME(ROUND(JULIANDAY(time_stamp) * 24.0 * 60.0) / 24.0 / 60.0, 'localtime') AS 'time_stamp'
+                    FROM ( SELECT process_ndx, COUNT(*) AS 'counter', DATETIME(ROUND(JULIANDAY(time_stamp) * 24.0 * {2}) / 24.0 / {2}, 'localtime') AS 'time_stamp'
 	                    FROM process_time_data
 	                    WHERE time_stamp BETWEEN DATETIME('NOW','-{0} {1}') AND DATETIME('NOW')
-	                    GROUP BY process_ndx, ROUND(JULIANDAY(time_stamp) * 24.0 * 60.0)) t
+	                    GROUP BY process_ndx, ROUND(JULIANDAY(time_stamp) * 24.0 * {2})) t
                     left join process_ref p
                     ON t.process_ndx = p.process_ndx
-                    ORDER BY t.time_stamp", dateVal, dateString);
+                    ORDER BY t.time_stamp", dateVal, dateString, hourMult == 24.0 ? "1.0" : "60.0");
                 comm.Connection = database;
 
                 //Run command and get data
@@ -98,14 +120,19 @@ namespace ActiveWatcher
                             //If index is not in dictionary
                             if (!seriesHold.ContainsKey(index))
                             {
-                                LineSeries hold = new LineSeries();
+                                StackedColumnSeries hold = new StackedColumnSeries();
                                 hold.Values = new ChartValues<DateTimePoint>();
-                                hold.LineSmoothness = 0;
+                                //hold.LineSmoothness = 0;
+                                hold.ScalesXAt = 0;
+                                hold.MaxColumnWidth = 100;
+                                hold.ColumnPadding = 0;
                                 hold.PointGeometry = null;
+                                
                                 seriesHold.Add(index, hold);
                             }
 
-                            //Add a cutoff if a process isn't used for a tick
+                            /*
+                            //Add a cutoff line if a process isn't used for a tick
                             if (seriesHold[index].Values.Count > 0) {
                                 DateTime lastPoint = ((DateTimePoint)seriesHold[index].Values[seriesHold[index].Values.Count - 1]).DateTime;
                                 if (TimeSpan.FromTicks(date.Ticks - lastPoint.Ticks).TotalMinutes > 1) {
@@ -118,6 +145,7 @@ namespace ActiveWatcher
                             {
                                 seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
                             }
+                            */
 
                             //Add value to series data
                             seriesHold[index].Values.Add(new DateTimePoint(date, data.GetInt32(1)));
