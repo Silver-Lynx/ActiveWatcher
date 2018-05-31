@@ -51,13 +51,17 @@ namespace ActiveWatcher
             SeriesCollection timeSeries = new SeriesCollection();
 
             //Create a dictionary of chart values defined as datetime-int pairs, representing all lines to be drawn, linked to their index
-            Dictionary<int, StackedAreaSeries> seriesHold = new Dictionary<int, StackedAreaSeries>();
+            Dictionary<int, LineSeries> seriesHold = new Dictionary<int, LineSeries>();
 
             //Get time type
             string dateString = ((string)dateType.SelectedItem).ToUpper();
 
             //Get time value
             int dateVal = (int)dateValue.Value;
+
+            //Reset Axes
+            cartesianChart1.AxisX[0].MinValue = DateTime.Now.AddHours(-1.0 * dateVal).Ticks;
+            cartesianChart1.AxisX[0].MaxValue = DateTime.Now.Ticks;
 
             //Open DB connection
             SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
@@ -94,19 +98,25 @@ namespace ActiveWatcher
                             //If index is not in dictionary
                             if (!seriesHold.ContainsKey(index))
                             {
-                                StackedAreaSeries hold = new StackedAreaSeries();
+                                LineSeries hold = new LineSeries();
                                 hold.Values = new ChartValues<DateTimePoint>();
                                 hold.LineSmoothness = 0;
                                 hold.PointGeometry = null;
-                                hold.StackMode = StackMode.Values;
                                 seriesHold.Add(index, hold);
                             }
 
                             //Add a cutoff if a process isn't used for a tick
                             if (seriesHold[index].Values.Count > 0) {
                                 DateTime lastPoint = ((DateTimePoint)seriesHold[index].Values[seriesHold[index].Values.Count - 1]).DateTime;
-                                if (TimeSpan.FromTicks(date.Ticks - lastPoint.Ticks).TotalMinutes > 1)
-                                    seriesHold[index].Values.Add(new DateTimePoint(lastPoint.AddSeconds(1), double.NaN));
+                                if (TimeSpan.FromTicks(date.Ticks - lastPoint.Ticks).TotalMinutes > 1) {
+                                    seriesHold[index].Values.Add(new DateTimePoint(lastPoint.AddMinutes(1), 0));
+                                    seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
+                                }
+                            }
+                            //Start at 0
+                            else
+                            {
+                                seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
                             }
 
                             //Add value to series data
@@ -187,16 +197,14 @@ namespace ActiveWatcher
 
                 //Set matching series label for each process
                 if (seriesHold.ContainsKey(p.ID))
+                {
                     seriesHold[p.ID].Title = p.commonName;
+                    seriesHold[p.ID].Values.Add(new DateTimePoint(((DateTimePoint)seriesHold[p.ID].Values[seriesHold[p.ID].Values.Count-1]).DateTime.AddMinutes(1), 0));
+                }
             }
 
             //Build chart
             cartesianChart1.Series.Clear();
-            cartesianChart1.Series.Configuration = Mappers.Xy<DateTimePoint>()
-                .X(value => (double)value.DateTime.Ticks)
-                .Y(value => value.Value);
-            cartesianChart1.AxisX[0].MinValue = DateTime.Now.AddHours(-1.0 * dateVal).Ticks;
-            cartesianChart1.AxisX[0].MaxValue = DateTime.Now.Ticks;
 
             cartesianChart1.Series.AddRange(seriesHold.Values);
 
