@@ -26,7 +26,7 @@ namespace ActiveWatcher
             InitializeComponent();
         }
 
-        void resizeText()
+        internal void resizeText()
         {
             //Make graphics object to check font size
             Graphics g = Graphics.FromImage(new Bitmap(1, 1));
@@ -34,6 +34,8 @@ namespace ActiveWatcher
 
             //Find scaling ratio
             float ratio = textLabel.Width / extent.Width;
+            //Dont make bigger, only smaller
+            if (ratio > 1.0) return;
             float newSize = textLabel.Font.Size * ratio;
 
             //Set font size
@@ -44,19 +46,19 @@ namespace ActiveWatcher
         {
             base.OnPaint(e);
 
-            if (this.Width > 0 && this.Height > 0 && fillPercent * this.Width > 0)
+            if (this.Width > 0 && this.Height > 0 && (int)(fillPercent * (this.Width - 32)) > 0 && this.Height > 0)
             {
-                int length = (int)(fillPercent * this.Width);
+                int length = (int)(fillPercent * (this.Width-32));
 
-                Point p1 = new Point(0, 5);
-                Point p2 = new Point(length, 5);
+                Point p1 = new Point(32, 5);
+                Point p2 = new Point(32+length, 5);
 
                 LinearGradientBrush b = new LinearGradientBrush(
                             p1, p2,
                             Color.FromArgb(0, 0, 0, 0),
-                            Color.FromArgb(30, 30, 30));
+                            Color.FromArgb(80, 80, 80));
 
-                e.Graphics.FillRectangle(b, 0, 0, length, this.Height);
+                e.Graphics.FillRectangle(b, 32, 0, length, this.Height);
             }
         }
     }
