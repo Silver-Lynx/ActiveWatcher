@@ -41,6 +41,7 @@ namespace ActiveWatcher
         public static int DISPLAYCOUNT = 5;
         public static bool doSaveTimes = true;
         public static double HIDDENOPACITY = 0.2;
+        public static bool PASSTHROUGH = false;
         public const string IDLENAME = "ACTIVEWATCHERIDLE";
         /*
         public static string DBCONNECTION = @"Data Source=(LocalDB)\MSSQLLocalDB;
@@ -105,7 +106,7 @@ namespace ActiveWatcher
             instance.loadRules();
 
             //Load times
-            instance.loadTimes();
+            //instance.loadTimes();
 
         }
 
@@ -237,6 +238,10 @@ namespace ActiveWatcher
             val.InnerText = HIDDENOPACITY.ToString();
             config.AppendChild(val);
 
+            val = doc.CreateElement("PassThrough");
+            val.InnerText = PASSTHROUGH.ToString();
+            config.AppendChild(val);
+
             //Add Rules to main document
             doc.AppendChild(config);
 
@@ -268,6 +273,9 @@ namespace ActiveWatcher
 
                 //Load time saving switch
                 doSaveTimes = bool.Parse(doc.FirstChild.SelectSingleNode("SaveTimes").InnerText);
+
+                //Load Mouse pass through
+                PASSTHROUGH = bool.Parse(doc.FirstChild.SelectSingleNode("PassThrough").InnerText);
             }
             catch
             {

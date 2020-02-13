@@ -15,8 +15,6 @@ namespace ActiveWatcher
     {
         public string displayText { get { return textLabel.Text; } set { textLabel.Text = value; textLabel.Invalidate(); } }
 
-        public string toolTipText { get; set; } = "";
-
         internal double fillPercent { get; set; } = 1.0;
 
         internal Image Image { get { return picLabel.Image; } set { picLabel.Image = value; picLabel.Invalidate(); } }
@@ -24,6 +22,11 @@ namespace ActiveWatcher
         public IconLabel()
         {
             InitializeComponent();
+        }
+
+        internal void setToolTip(string text)
+        {
+            toolTip1.SetToolTip(picLabel, text);
         }
 
         internal void resizeText()

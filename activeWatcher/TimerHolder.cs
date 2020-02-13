@@ -23,13 +23,13 @@ namespace ActiveWatcher
     public partial class TimerHolder : Form
     {
         #region imports
-        const int GWL_EXSTYLE = -20;
-        const int WS_EX_LAYERED = 0x80000;
-        const int WS_EX_TRANSPARENT = 0x20;
         [DllImport("user32.dll", SetLastError = true)]
         static extern int GetWindowLong(IntPtr hWnd, int nIndex);
         [DllImport("user32.dll")]
         static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        const int GWL_EXSTYLE = -20;
+        const int WS_EX_LAYERED = 0x80000;
+        const int WS_EX_TRANSPARENT = 0x20;
         #endregion
 
         public static TimerHolder instance;
@@ -37,7 +37,7 @@ namespace ActiveWatcher
         Watcher w;
         Dictionary<string,ProcessTimer> processes;
         Position pos;
-        public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value; redraw(); } }
+        public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value;} }
         IconLabel[] plabels;
         IconLabel total;
 
@@ -52,6 +52,7 @@ namespace ActiveWatcher
         public TimerHolder()
         {
             InitializeComponent();
+
             instance = this;
             this.Opacity = 0.0;
             w = Watcher.instance;
@@ -63,14 +64,27 @@ namespace ActiveWatcher
             ANIMTIMER.Interval = 16;
             ANIMTIMER.Tick += ANIMTIMER_Tick;
             targetOpacity = Watcher.HIDDENOPACITY;
+            setPassThrough(Watcher.PASSTHROUGH);
 
             w.onResize += W_resize;
             w.onTick += W_onTick;
 
+            //Needs to use Windows message handler instead of winforms events due to transparency
             MouseMoveMessageFilter m = new MouseMoveMessageFilter(this);
             m.onMouseEnter += TimerHolder_MouseEnter;
             m.onMouseLeave += TimerHolder_MouseLeave;
             Application.AddMessageFilter(m);
+        }
+
+        internal void setPassThrough(bool enable)
+        {
+            int style = GetWindowLong(this.Handle, GWL_EXSTYLE);
+            //Make sure form is layered window and transparency
+            style = (style | WS_EX_LAYERED) | WS_EX_TRANSPARENT;
+            //If disabling, XOR the transparency to turn off
+            if (!enable)
+                style = (style | WS_EX_LAYERED) ^ WS_EX_TRANSPARENT;
+            SetWindowLong(this.Handle, GWL_EXSTYLE, style);
         }
 
         public void display()
@@ -115,8 +129,14 @@ namespace ActiveWatcher
             Watcher.instance.saveTimes();
         }
 
-        private void redraw()
+        internal void redraw()
         {
+            if (w == null) return;
+
+            //Re-query Display Variables
+            DisplayCount = Watcher.DISPLAYCOUNT;
+            setPassThrough(Watcher.PASSTHROUGH);
+
             //Unload previous labels
             foreach (IconLabel l in plabels)
             {
@@ -169,7 +189,6 @@ namespace ActiveWatcher
                     break;
             }
 
-
             updateLabels();
             this.Visible = true;
         }
@@ -200,7 +219,7 @@ namespace ActiveWatcher
                 if (plabels[l] != null)
                 {
                     plabels[l].displayText = sorted[l].ToString();
-                    toolTip1.SetToolTip(plabels[l], sorted[l].process.commonName);
+                    plabels[l].setToolTip(sorted[l].process.commonName);
                     plabels[l].Image = sorted[l].getIcon();
                     plabels[l].fillPercent = (double)sorted[l].secondsActive / ProcessTimer.total;
                     plabels[l].Refresh();
@@ -317,6 +336,7 @@ namespace ActiveWatcher
             new Timeline().Show();
         }
 
+        //Mouse Handler for Windows OS level messages to trigger events
         class MouseMoveMessageFilter : IMessageFilter
         {
             private const int WM_NCMOUSEMOVE = 0x00A0;
@@ -354,6 +374,7 @@ namespace ActiveWatcher
                 return false;
             }
 
+            //If in our form's bounds on the screen, trigger mouse hover
             void CheckMouseBounds(bool inside)
             {
                 //Already inside and just moving, skip

@@ -27,9 +27,15 @@ namespace ActiveWatcher
 
         private void btnApply_Click(object sender, EventArgs e)
         {
+            //Set Variables
             Watcher.IDLEMAX = (int)numIdle.Value;
             Watcher.DISPLAYCOUNT = (int)boxNumShow.Value;
             Watcher.HIDDENOPACITY = (double)numOpacity.Value / 100.0;
+            Watcher.PASSTHROUGH = CBIgnoreMouse.Checked;
+
+            TimerHolder.instance.redraw();
+
+            //Save to init file
             Watcher.instance.saveConfig();
         }
 

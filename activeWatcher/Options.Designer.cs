@@ -36,6 +36,7 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.numOpacity = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
+            this.CBIgnoreMouse = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numIdle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOpacity)).BeginInit();
@@ -74,7 +75,7 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(12, 56);
+            this.label1.Location = new System.Drawing.Point(12, 50);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 2;
@@ -82,7 +83,7 @@
             // 
             // btnAddRule
             // 
-            this.btnAddRule.Location = new System.Drawing.Point(12, 145);
+            this.btnAddRule.Location = new System.Drawing.Point(12, 164);
             this.btnAddRule.Name = "btnAddRule";
             this.btnAddRule.Size = new System.Drawing.Size(83, 23);
             this.btnAddRule.TabIndex = 4;
@@ -92,7 +93,7 @@
             // 
             // numIdle
             // 
-            this.numIdle.Location = new System.Drawing.Point(101, 54);
+            this.numIdle.Location = new System.Drawing.Point(101, 48);
             this.numIdle.Maximum = new decimal(new int[] {
             3600,
             0,
@@ -115,7 +116,7 @@
             // 
             // btnApply
             // 
-            this.btnApply.Location = new System.Drawing.Point(150, 145);
+            this.btnApply.Location = new System.Drawing.Point(150, 164);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 9;
@@ -130,7 +131,7 @@
             0,
             0,
             0});
-            this.numOpacity.Location = new System.Drawing.Point(101, 92);
+            this.numOpacity.Location = new System.Drawing.Point(101, 80);
             this.numOpacity.Minimum = new decimal(new int[] {
             10,
             0,
@@ -148,17 +149,29 @@
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(12, 94);
+            this.label2.Location = new System.Drawing.Point(12, 82);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(83, 13);
             this.label2.TabIndex = 10;
             this.label2.Text = "Transparency";
             // 
+            // CBIgnoreMouse
+            // 
+            this.CBIgnoreMouse.AutoSize = true;
+            this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 113);
+            this.CBIgnoreMouse.Name = "CBIgnoreMouse";
+            this.CBIgnoreMouse.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.CBIgnoreMouse.Size = new System.Drawing.Size(123, 17);
+            this.CBIgnoreMouse.TabIndex = 12;
+            this.CBIgnoreMouse.Text = "Ignore Mouse Hover";
+            this.CBIgnoreMouse.UseVisualStyleBackColor = true;
+            // 
             // Options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(237, 180);
+            this.ClientSize = new System.Drawing.Size(237, 199);
+            this.Controls.Add(this.CBIgnoreMouse);
             this.Controls.Add(this.numOpacity);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.btnApply);
@@ -175,6 +188,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numIdle)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOpacity)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -188,5 +202,6 @@
         private System.Windows.Forms.Button btnApply;
         private System.Windows.Forms.NumericUpDown numOpacity;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox CBIgnoreMouse;
     }
 }

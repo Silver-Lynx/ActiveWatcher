@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.picLabel = new System.Windows.Forms.Label();
             this.textLabel = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // picLabel
@@ -48,7 +50,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textLabel.BackColor = System.Drawing.Color.Transparent;
-            this.textLabel.Font = new System.Drawing.Font("Monospac821 BT", 10F);
+            this.textLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.textLabel.ForeColor = System.Drawing.Color.White;
             this.textLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.textLabel.Location = new System.Drawing.Point(32, 0);
@@ -57,6 +59,11 @@
             this.textLabel.TabIndex = 0;
             this.textLabel.Text = "Microsoft Visual Studio";
             this.textLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.UseAnimation = false;
+            this.toolTip1.UseFading = false;
             // 
             // IconLabel
             // 
@@ -76,5 +83,6 @@
 
         private System.Windows.Forms.Label picLabel;
         private System.Windows.Forms.Label textLabel;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
