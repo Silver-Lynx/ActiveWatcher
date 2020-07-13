@@ -87,6 +87,7 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -101,6 +102,12 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graphs.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Graphs.Designer.cs">
+      <DependentUpon>Graphs.cs</DependentUpon>
+    </Compile>
     <Compile Include="IconLabel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -148,6 +155,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Watcher.cs" />
+    <EmbeddedResource Include="Graphs.resx">
+      <DependentUpon>Graphs.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="IconLabel.resx">
       <DependentUpon>IconLabel.cs</DependentUpon>
     </EmbeddedResource>
