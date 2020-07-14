@@ -17,7 +17,8 @@ namespace ActiveWatcher
             InitializeComponent();
             numIdle.Value = Watcher.IDLEMAX;
             boxNumShow.Value = TimerHolder.instance.DisplayCount;
-            
+            numOpacity.Value = (decimal)(Watcher.HIDDENOPACITY*100.0);
+            CBIgnoreMouse.Checked = Watcher.PASSTHROUGH;
         }
 
         private void btnAddRule_Click(object sender, EventArgs e)
