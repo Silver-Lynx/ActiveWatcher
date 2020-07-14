@@ -333,7 +333,8 @@ namespace ActiveWatcher
 
         private void viewTimelineToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Timeline().Show();
+            //new Timeline().Show();
+            new Graphs().Show();
         }
 
         //Mouse Handler for Windows OS level messages to trigger events
