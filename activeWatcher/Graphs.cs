@@ -75,100 +75,99 @@ namespace ActiveWatcher
             //cartesianChart1.AxisY[0].MaxValue = hourMult == 24.0 ? 3600 : 60;
 
             //Open DB connection
-            SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
-            database.Open();
+            //SQLiteConnection database = Watcher.instance.database;
 
-            //Do query for times
-            using (SQLiteCommand comm = new SQLiteCommand())
-            {
-                //Build command
-                comm.CommandType = System.Data.CommandType.Text;
-                comm.CommandText = string.Format(@"
-                    WITH RECURSIVE times(hour,counter) AS (
-                        SELECT DATETIME('{0}'),0
+            string query = string.Format(@"
+                    WITH RECURSIVE times(hour_start,hour_end,counter) AS (
+                        SELECT DATETIME('{0}'),DATETIME('{0}','+1 hour'),0
                         UNION ALL
-                        SELECT DATETIME(hour,'+1 hour'),counter+1
+                        SELECT hour_end,DATETIME(hour_end,'+1 hour'),counter+1
                         FROM times
                         WHERE counter < 23
                     )
-                    SELECT p.common_name, COALESCE(a.counter/60,0), t.hour
+                    SELECT p.common_name, COUNT(d.process_ndx)/60, t.hour_start
                     FROM times t
-                    join (SELECT process_ndx, common_name FROM process_ref UNION SELECT 0,'Idle') p
-                    ON 1=1
-                    LEFT JOIN ( SELECT COALESCE(process_ndx,0) AS 'process_ndx', COUNT(*) AS 'counter', DATETIME(ROUND(JULIANDAY(time_stamp) * 24.0 - 0.5) / 24.0, 'localtime') AS 'time_stamp'
-	                    FROM process_time_data
-	                    WHERE time_stamp BETWEEN DATETIME('{0}') AND DATETIME('{0}','+1 day')
-	                    GROUP BY process_ndx, ROUND(JULIANDAY(time_stamp) * 24.0 -0.5)) a
-                    ON a.process_ndx = p.process_ndx
-                    AND a.time_stamp = t.hour
-                    ORDER BY t.hour", dateval.ToString("yyyy-MM-dd"));
-                comm.Connection = database;
+                    JOIN (SELECT process_ndx, common_name FROM process_ref UNION SELECT 0,'Idle') p
+                        ON 1=1
+                    LEFT JOIN process_time_data d
+	                    ON d.time_stamp BETWEEN t.hour_start AND t.hour_end
+                        AND d.process_ndx = p.process_ndx
+                    GROUP BY t.hour_start,p.common_name
+                    ORDER BY t.hour_start", dateval.ToString("yyyy-MM-dd"));
 
-                //Run command and get data
-                using (SQLiteDataReader data = comm.ExecuteReader())
+            //Do query for times
+            //using (SQLiteCommand comm = new SQLiteCommand())
+            //{
+            //    //Build command
+            //    comm.CommandType = System.Data.CommandType.Text;
+            //    comm.CommandText = query;
+            //    comm.Connection = database;
+
+            //Run command and get data
+            using (SQLiteDataReader data = Watcher.QueryDB(query))
+            {
+                //Data exists
+                if (data.HasRows)
                 {
-                    //Data exists
-                    if (data.HasRows)
+                    //While data still exists
+                    while (data.Read())
                     {
-                        //While data still exists
-                        while (data.Read())
+                        string pname = data.GetString(0);
+                        int count = data.GetInt32(1);
+                        DateTime date = data.GetDateTime(2);
+
+                        if (!seriesHold.ContainsKey(pname))
                         {
-                            string pname = data.GetString(0);
-                            int count = data.GetInt32(1);
-                            DateTime date = data.GetDateTime(2);
+                            Series hold = new Series();
+                            hold.ChartType = SeriesChartType.StackedArea;
+                            hold.Legend = "Legend";
+                            hold.ChartArea = "ChartArea";
+                            hold.Name = pname;
+                            hold.XValueType = ChartValueType.Time;
+                            seriesHold[pname] = hold;
+                            ignoreEmpty.Add(hold);
+                        }
 
-                            if (!seriesHold.ContainsKey(pname))
-                            {
-                                Series hold = new Series();
-                                hold.ChartType = SeriesChartType.StackedArea;
-                                hold.Legend = "Legend";
-                                hold.ChartArea = "ChartArea";
-                                hold.Name = pname;
-                                hold.XValueType = ChartValueType.Time;
-                                seriesHold[pname] = hold;
-                                ignoreEmpty.Add(hold);
-                            }
+                        ////If index is not in dictionary
+                        //if (!seriesHold.ContainsKey(index))
+                        //{
+                        //    StackedColumnSeries hold = new StackedColumnSeries();
+                        //    hold.Values = new ChartValues<DateTimePoint>();
+                        //    //hold.LineSmoothness = 0;
+                        //    hold.ScalesXAt = 0;
+                        //    hold.MaxColumnWidth = 100;
+                        //    hold.ColumnPadding = 0;
+                        //    hold.PointGeometry = null;
+                        //    seriesHold.Add(index, hold);
+                        //}
 
-                            ////If index is not in dictionary
-                            //if (!seriesHold.ContainsKey(index))
-                            //{
-                            //    StackedColumnSeries hold = new StackedColumnSeries();
-                            //    hold.Values = new ChartValues<DateTimePoint>();
-                            //    //hold.LineSmoothness = 0;
-                            //    hold.ScalesXAt = 0;
-                            //    hold.MaxColumnWidth = 100;
-                            //    hold.ColumnPadding = 0;
-                            //    hold.PointGeometry = null;
-                            //    seriesHold.Add(index, hold);
-                            //}
-
-                            /*
-                            //Add a cutoff line if a process isn't used for a tick
-                            if (seriesHold[index].Values.Count > 0) {
-                                DateTime lastPoint = ((DateTimePoint)seriesHold[index].Values[seriesHold[index].Values.Count - 1]).DateTime;
-                                if (TimeSpan.FromTicks(date.Ticks - lastPoint.Ticks).TotalMinutes > 1) {
-                                    seriesHold[index].Values.Add(new DateTimePoint(lastPoint.AddMinutes(1), 0));
-                                    seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
-                                }
-                            }
-                            //Start at 0
-                            else
-                            {
+                        /*
+                        //Add a cutoff line if a process isn't used for a tick
+                        if (seriesHold[index].Values.Count > 0) {
+                            DateTime lastPoint = ((DateTimePoint)seriesHold[index].Values[seriesHold[index].Values.Count - 1]).DateTime;
+                            if (TimeSpan.FromTicks(date.Ticks - lastPoint.Ticks).TotalMinutes > 1) {
+                                seriesHold[index].Values.Add(new DateTimePoint(lastPoint.AddMinutes(1), 0));
                                 seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
                             }
-                            */
-
-                            if (count > 0) ignoreEmpty.Remove(seriesHold[pname]);
-
-                            //Add value to series data
-                            //seriesHold[index].Values.Add(new DateTimePoint(date, data.GetInt32(1)));
-                            seriesHold[pname].Points.AddXY(date, count);
                         }
+                        //Start at 0
+                        else
+                        {
+                            seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
+                        }
+                        */
+
+                        if (count > 0) ignoreEmpty.Remove(seriesHold[pname]);
+
+                        //Add value to series data
+                        //seriesHold[index].Values.Add(new DateTimePoint(date, data.GetInt32(1)));
+                        seriesHold[pname].Points.AddXY(date, count);
                     }
-                    //Close data reader
-                    data.Close();
                 }
+                //Close data reader
+                data.Close();
             }
+
 
             ////Do query for processes
             //using (SQLiteCommand comm = new SQLiteCommand())
@@ -254,7 +253,7 @@ namespace ActiveWatcher
             chart1.Series.Clear();
             foreach (Series item in seriesHold.Values)
             {
-                if(!ignoreEmpty.Contains(item))
+                if (!ignoreEmpty.Contains(item))
                     chart1.Series.Add(item);
             }
         }

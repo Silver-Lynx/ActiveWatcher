@@ -37,6 +37,7 @@
             this.numOpacity = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.CBIgnoreMouse = new System.Windows.Forms.CheckBox();
+            this.CBShowTotal = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numIdle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOpacity)).BeginInit();
@@ -83,7 +84,7 @@
             // 
             // btnAddRule
             // 
-            this.btnAddRule.Location = new System.Drawing.Point(12, 164);
+            this.btnAddRule.Location = new System.Drawing.Point(12, 194);
             this.btnAddRule.Name = "btnAddRule";
             this.btnAddRule.Size = new System.Drawing.Size(83, 23);
             this.btnAddRule.TabIndex = 4;
@@ -116,7 +117,7 @@
             // 
             // btnApply
             // 
-            this.btnApply.Location = new System.Drawing.Point(150, 164);
+            this.btnApply.Location = new System.Drawing.Point(150, 194);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 9;
@@ -158,7 +159,7 @@
             // CBIgnoreMouse
             // 
             this.CBIgnoreMouse.AutoSize = true;
-            this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 113);
+            this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 118);
             this.CBIgnoreMouse.Name = "CBIgnoreMouse";
             this.CBIgnoreMouse.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.CBIgnoreMouse.Size = new System.Drawing.Size(123, 17);
@@ -166,11 +167,23 @@
             this.CBIgnoreMouse.Text = "Ignore Mouse Hover";
             this.CBIgnoreMouse.UseVisualStyleBackColor = true;
             // 
+            // CBShowTotal
+            // 
+            this.CBShowTotal.AutoSize = true;
+            this.CBShowTotal.Location = new System.Drawing.Point(29, 150);
+            this.CBShowTotal.Name = "CBShowTotal";
+            this.CBShowTotal.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.CBShowTotal.Size = new System.Drawing.Size(106, 17);
+            this.CBShowTotal.TabIndex = 13;
+            this.CBShowTotal.Text = "Show Total Time";
+            this.CBShowTotal.UseVisualStyleBackColor = true;
+            // 
             // Options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(237, 199);
+            this.ClientSize = new System.Drawing.Size(237, 229);
+            this.Controls.Add(this.CBShowTotal);
             this.Controls.Add(this.CBIgnoreMouse);
             this.Controls.Add(this.numOpacity);
             this.Controls.Add(this.label2);
@@ -203,5 +216,6 @@
         private System.Windows.Forms.NumericUpDown numOpacity;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox CBIgnoreMouse;
+        private System.Windows.Forms.CheckBox CBShowTotal;
     }
 }

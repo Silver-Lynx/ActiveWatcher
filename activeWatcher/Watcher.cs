@@ -42,6 +42,7 @@ namespace ActiveWatcher
         public static bool doSaveTimes = true;
         public static double HIDDENOPACITY = 0.2;
         public static bool PASSTHROUGH = false;
+        public static bool SHOWTOTAL = true;
         public const string IDLENAME = "ACTIVEWATCHERIDLE";
         /*
         public static string DBCONNECTION = @"Data Source=(LocalDB)\MSSQLLocalDB;
@@ -97,7 +98,7 @@ namespace ActiveWatcher
                     [process_ndx]   INTEGER NULL);", instance.database))
                 makeTables.ExecuteNonQuery();
 
-            instance.database.Close();
+            //instance.database.Close();
 
             instance.procManager.loadProcesses();
 
@@ -159,17 +160,18 @@ namespace ActiveWatcher
                     //Write tick to database
                     using (SQLiteCommand cmd = new SQLiteCommand())
                     {
-                        cmd.CommandText = "INSERT INTO process_time_data (time_stamp, process_ndx) VALUES (DATETIME('now'),@ndx)";
+                        cmd.CommandText = "INSERT INTO process_time_data (time_stamp, process_ndx) VALUES (DATETIME('now', 'localtime'),@ndx)";
                         cmd.Connection =   instance.database;
                         cmd.CommandType = System.Data.CommandType.Text;
 
                         cmd.Parameters.Add("@ndx", System.Data.DbType.Int32).Value = timers[activeProcess].process.ID;
 
-                        instance.database.Open();
+                        if(instance.database.State != System.Data.ConnectionState.Open)
+                            instance.database.Open();
 
                         cmd.ExecuteNonQuery();
 
-                        instance.database.Close();
+                        //instance.database.Close();
                     }
                 }
             }
@@ -242,6 +244,10 @@ namespace ActiveWatcher
             val.InnerText = PASSTHROUGH.ToString();
             config.AppendChild(val);
 
+            val = doc.CreateElement("ShowTotal");
+            val.InnerText = SHOWTOTAL.ToString();
+            config.AppendChild(val);
+
             //Add Rules to main document
             doc.AppendChild(config);
 
@@ -276,6 +282,9 @@ namespace ActiveWatcher
 
                 //Load Mouse pass through
                 PASSTHROUGH = bool.Parse(doc.FirstChild.SelectSingleNode("PassThrough").InnerText);
+
+                //Load display total timer
+                SHOWTOTAL = bool.Parse(doc.FirstChild.SelectSingleNode("ShowTotal").InnerText);
             }
             catch
             {
@@ -445,6 +454,7 @@ namespace ActiveWatcher
         {
             CLOCK.Stop();
             CLOCK.Dispose();
+            instance.database.Close();
         }
 
         public static int GetInactiveTime()
@@ -458,6 +468,21 @@ namespace ActiveWatcher
             else
             {
                 return IDLEMAX;
+            }
+        }
+
+        public static SQLiteDataReader QueryDB(string query)
+        {
+            using (SQLiteCommand cmd = new SQLiteCommand())
+            {
+                cmd.Connection = instance.database;
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = query;
+
+                if (instance.database.State != System.Data.ConnectionState.Open)
+                    instance.database.Open();
+
+                return cmd.ExecuteReader();
             }
         }
     }

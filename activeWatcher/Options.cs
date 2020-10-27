@@ -19,6 +19,7 @@ namespace ActiveWatcher
             boxNumShow.Value = TimerHolder.instance.DisplayCount;
             numOpacity.Value = (decimal)(Watcher.HIDDENOPACITY*100.0);
             CBIgnoreMouse.Checked = Watcher.PASSTHROUGH;
+            CBShowTotal.Checked = Watcher.SHOWTOTAL;
         }
 
         private void btnAddRule_Click(object sender, EventArgs e)
@@ -33,6 +34,7 @@ namespace ActiveWatcher
             Watcher.DISPLAYCOUNT = (int)boxNumShow.Value;
             Watcher.HIDDENOPACITY = (double)numOpacity.Value / 100.0;
             Watcher.PASSTHROUGH = CBIgnoreMouse.Checked;
+            Watcher.SHOWTOTAL = CBShowTotal.Checked;
 
             TimerHolder.instance.redraw();
 
