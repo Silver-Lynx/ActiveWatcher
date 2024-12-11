@@ -15,26 +15,26 @@ namespace ActiveWatcher
         public Options()
         {
             InitializeComponent();
-            numIdle.Value = Watcher.IDLEMAX;
+            numIdle.Value = Watcher.settings.IDLEMAX;
             boxNumShow.Value = TimerHolder.instance.DisplayCount;
-            numOpacity.Value = (decimal)(Watcher.HIDDENOPACITY*100.0);
-            CBIgnoreMouse.Checked = Watcher.PASSTHROUGH;
-            CBShowTotal.Checked = Watcher.SHOWTOTAL;
+            numOpacity.Value = (decimal)(Watcher.settings.HIDDENOPACITY*100.0);
+            CBIgnoreMouse.Checked = Watcher.settings.PASSTHROUGH;
+            CBShowTotal.Checked = Watcher.settings.SHOWTOTAL;
         }
 
         private void btnApply_Click(object sender, EventArgs e)
         {
             //Set Variables
-            Watcher.IDLEMAX = (int)numIdle.Value;
-            Watcher.DISPLAYCOUNT = (int)boxNumShow.Value;
-            Watcher.HIDDENOPACITY = (double)numOpacity.Value / 100.0;
-            Watcher.PASSTHROUGH = CBIgnoreMouse.Checked;
-            Watcher.SHOWTOTAL = CBShowTotal.Checked;
+            Watcher.settings.IDLEMAX = (int)numIdle.Value;
+            Watcher.settings.DISPLAYCOUNT = (int)boxNumShow.Value;
+            Watcher.settings.HIDDENOPACITY = (double)numOpacity.Value / 100.0;
+            Watcher.settings.PASSTHROUGH = CBIgnoreMouse.Checked;
+            Watcher.settings.SHOWTOTAL = CBShowTotal.Checked;
 
             TimerHolder.instance.redraw();
 
             //Save to init file
-            Watcher.instance.saveConfig();
+            DataManager.SaveConfig(Watcher.settings);
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

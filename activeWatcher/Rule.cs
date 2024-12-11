@@ -24,10 +24,10 @@ namespace ActiveWatcher
             this.valLimit = limit;
         }
 
-        public bool checkApply(ProcessTimer t)
+        public bool checkApply(ProcessDetails p)
         {
             //If any program, or the matching program, apply is true
-            return processName == "*" || processName == t.process.processName;
+            return processName == "*" || processName == p.Descriptor;
         }
 
         internal RuleInstance getAlarm()
@@ -55,7 +55,7 @@ namespace ActiveWatcher
             Watcher.instance.registerTick(idleTick);
         }
 
-        public void evaluate(int t, ProcessTimer pt)
+        public void evaluate(int t, ProcessDetails p)
         {
             //If already active, do nothing
             if (active) return;
@@ -67,7 +67,7 @@ namespace ActiveWatcher
             active = true;
             idleTime = 0;
 
-            Parent.action.DoAction(pt);
+            Parent.action?.DoAction(p);
         }
 
         public void idleTick(object sender, EventArgs e)

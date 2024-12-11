@@ -35,9 +35,8 @@ namespace ActiveWatcher
         public static TimerHolder instance;
 
         Watcher w;
-        Dictionary<string,ProcessTimer> processes;
         Position pos;
-        public int DisplayCount { get { return Watcher.DISPLAYCOUNT; } set { Watcher.DISPLAYCOUNT = value;} }
+        public int DisplayCount { get { return Watcher.settings.DISPLAYCOUNT; } set { Watcher.settings.DISPLAYCOUNT = value;} }
         IconLabel[] plabels;
         IconLabel total;
 
@@ -49,6 +48,8 @@ namespace ActiveWatcher
         int labelHeight = 24;
         int labelWidth = 150;
 
+        List<ProcessDetails> processes;
+
         public TimerHolder()
         {
             InitializeComponent();
@@ -56,15 +57,14 @@ namespace ActiveWatcher
             instance = this;
             this.Opacity = 0.0;
             w = Watcher.instance;
-            processes = w.getTimers();
             pos = Position.BOTTOM_RIGHT;
             plabels = new IconLabel[DisplayCount];
 
             ANIMTIMER = new Timer();
             ANIMTIMER.Interval = 16;
             ANIMTIMER.Tick += ANIMTIMER_Tick;
-            targetOpacity = Watcher.HIDDENOPACITY;
-            setPassThrough(Watcher.PASSTHROUGH);
+            targetOpacity = Watcher.settings.HIDDENOPACITY;
+            setPassThrough(Watcher.settings.PASSTHROUGH);
 
             w.onResize += W_resize;
             w.onTick += W_onTick;
@@ -134,8 +134,8 @@ namespace ActiveWatcher
             if (w == null) return;
 
             //Re-query Display Variables
-            DisplayCount = Watcher.DISPLAYCOUNT;
-            setPassThrough(Watcher.PASSTHROUGH);
+            DisplayCount = Watcher.settings.DISPLAYCOUNT;
+            setPassThrough(Watcher.settings.PASSTHROUGH);
 
             //Resize label array
             if (DisplayCount != plabels.Length)
@@ -147,7 +147,7 @@ namespace ActiveWatcher
             }
 
             //Build total display if needed
-            if (total == null && Watcher.SHOWTOTAL)
+            if (total == null && Watcher.settings.SHOWTOTAL)
             {
                 //Total time label
                 total = makeLabel(0);
@@ -159,7 +159,7 @@ namespace ActiveWatcher
             }
 
             //Remove total display if needed
-            if (total != null && !Watcher.SHOWTOTAL)
+            if (total != null && !Watcher.settings.SHOWTOTAL)
             {
                 this.Controls.Remove(total);
                 //Update label positions
@@ -169,7 +169,7 @@ namespace ActiveWatcher
             }
 
             int num = processes.Count > DisplayCount ? DisplayCount : processes.Count;
-            this.ClientSize = new Size(labelWidth, labelHeight * (num + (Watcher.SHOWTOTAL ? 1 : 0)));
+            this.ClientSize = new Size(labelWidth, labelHeight * (num + (Watcher.settings.SHOWTOTAL ? 1 : 0)));
             switch (pos)
             {
                 case Position.TOP_LEFT:
@@ -201,17 +201,17 @@ namespace ActiveWatcher
             //Add new label if needed
             if(processes.Count > 0 && processes.Count <= plabels.Length && plabels[processes.Count-1] == null)
             {
-                IconLabel hold = makeLabel(processes.Count - (Watcher.SHOWTOTAL ? 0 : 1));
+                IconLabel hold = makeLabel(processes.Count - (Watcher.settings.SHOWTOTAL ? 0 : 1));
                 this.Controls.Add(hold);
                 this.plabels[processes.Count - 1] = hold;
             }
 
             if (total != null)
-                total.displayText = string.Format("{0:D}:{1:D2}:{2:D2}/100%", ProcessTimer.total / 3600, (ProcessTimer.total % 3600) / 60, ProcessTimer.total % 60);
+                total.displayText = string.Format("{0:D}:{1:D2}:{2:D2}/100%", ProcessDetails.totalTime / 3600, (ProcessDetails.totalTime % 3600) / 60, ProcessDetails.totalTime % 60);
 
             //Sort processes by time active
-            List<ProcessTimer> sorted = processes.Values.ToList();
-            sorted.Sort((x , y) => x.secondsActive > y.secondsActive ? -1 : 1);
+            List<ProcessDetails> sorted = processes;
+            sorted.Sort((x , y) => x.currentTime > y.currentTime ? -1 : 1);
 
             //Display process details on labels
             for(int l = 0; l < plabels.Length; l++)
@@ -219,9 +219,9 @@ namespace ActiveWatcher
                 if(plabels[l] != null)
                 {
                     plabels[l].displayText = sorted[l].ToString();
-                    plabels[l].setToolTip(sorted[l].process.commonName);
-                    plabels[l].Image = sorted[l].getIcon();
-                    plabels[l].fillPercent = (double)sorted[l].secondsActive / ProcessTimer.total;
+                    plabels[l].setToolTip(sorted[l].DisplayName);
+                    plabels[l].Image = sorted[l].Icon;
+                    plabels[l].fillPercent = (double)sorted[l].currentTime / ProcessDetails.totalTime;
                     plabels[l].Refresh();
                 }
             }
@@ -299,7 +299,7 @@ namespace ActiveWatcher
         private void reset_Click(object sender, EventArgs e)
         {
             w.resetAll();
-            processes = w.getTimers();
+            processes = Watcher.instance.procManager.processList;//w.getTimers();
             foreach(IconLabel l in plabels)
             {
                 if(l != null)
@@ -327,7 +327,7 @@ namespace ActiveWatcher
 
         private void TimerHolder_MouseLeave(object sender, EventArgs e)
         {
-            targetOpacity = Watcher.HIDDENOPACITY;
+            targetOpacity = Watcher.settings.HIDDENOPACITY;
             if (!ANIMTIMER.Enabled) ANIMTIMER.Start();
         }
 
@@ -399,5 +399,11 @@ namespace ActiveWatcher
                 }
             }
         }
-    }
+
+		private void TimerHolder_FormClosing(object sender, FormClosingEventArgs e)
+		{
+            Notify.Visible = false;
+            Notify.Dispose();
+		}
+	}
 }

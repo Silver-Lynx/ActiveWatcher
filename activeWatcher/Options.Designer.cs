@@ -206,6 +206,8 @@
 			this.Controls.Add(this.boxNumShow);
 			this.Controls.Add(this.LmaxProcs);
 			this.Icon = global::ActiveWatcher.Properties.Resources.ActiveWatcherIcon;
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
 			this.Name = "Options";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Options";

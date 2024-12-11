@@ -46,7 +46,7 @@ namespace ActiveWatcher
         {
             foreach (DataGridViewRow r in dataViewer.SelectedRows)
             {
-                Watcher.instance.removeRule((Rule)r.DataBoundItem);
+                //Watcher.instance.removeRule((Rule)r.DataBoundItem);
             }
             update();
         }

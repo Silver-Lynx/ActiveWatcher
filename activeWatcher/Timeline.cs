@@ -4,8 +4,6 @@ using LiveCharts.Configurations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Data.SQLite;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -17,7 +15,7 @@ namespace ActiveWatcher
 {
     public partial class Timeline : Form
     {
-        List<WProcess> processes;
+        List<ProcessDetails> processes;
         int processTotal;
 
         public Timeline()
@@ -37,7 +35,7 @@ namespace ActiveWatcher
 
         void refreshData()
         {
-            processes = new List<WProcess>();
+            processes = new List<ProcessDetails>();
             processTotal = 0;
 
             SeriesCollection timeSeries = new SeriesCollection();
@@ -85,6 +83,7 @@ namespace ActiveWatcher
 
             cartesianChart1.AxisY[0].MaxValue = hourMult == 24.0 ? 3600 : 60;
 
+            /*
             //Open DB connection
             SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
             database.Open();
@@ -146,7 +145,7 @@ namespace ActiveWatcher
                                 seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
                             }
                             */
-
+            /*
                             //Add value to series data
                             seriesHold[index].Values.Add(new DateTimePoint(date, data.GetInt32(1)));
                         }
@@ -155,6 +154,7 @@ namespace ActiveWatcher
                     data.Close();
                 }
             }
+            
 
             //Do query for processes
             using (SQLiteCommand comm = new SQLiteCommand())
@@ -200,6 +200,7 @@ namespace ActiveWatcher
                     data.Close();
                 }
             }
+            */
 
             //Clear label list
             foreach(Control c in labelPanel.Controls)
@@ -209,26 +210,27 @@ namespace ActiveWatcher
             labelPanel.Controls.Clear();
             labelPanel.Invalidate();
 
-            processes.Sort((x, y) => int.Parse(x.processName) > int.Parse(y.processName) ? -1 : 1 );
+            processes.Sort((x, y) => int.Parse(x.Descriptor) > int.Parse(y.Descriptor) ? -1 : 1 );
 
             //Repopulate Label list
-            foreach(WProcess p in processes)
+            foreach(ProcessDetails p in processes)
             {
                 IconLabel hold = new IconLabel();
-                hold.displayText = p.commonName;
-                hold.Image = p.icon;
-                hold.fillPercent = double.Parse(p.processName) / processTotal;
+                hold.displayText = p.DisplayName;
+                hold.Image = p.Icon;
+                hold.fillPercent = double.Parse(p.Descriptor) / processTotal;
                 hold.resizeText();
                 hold.Location = new Point(0, processes.IndexOf(p) * 32);
 
                 labelPanel.Controls.Add(hold);
 
                 //Set matching series label for each process
+                /*
                 if (seriesHold.ContainsKey(p.ID))
                 {
-                    seriesHold[p.ID].Title = p.commonName;
+                    seriesHold[p.ID].Title = p.DisplayName;
                     seriesHold[p.ID].Values.Add(new DateTimePoint(((DateTimePoint)seriesHold[p.ID].Values[seriesHold[p.ID].Values.Count-1]).DateTime.AddMinutes(1), 0));
-                }
+                }*/
             }
 
             //Build chart

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SQLite;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -103,6 +102,7 @@ namespace ActiveWatcher
             //    comm.CommandText = query;
             //    comm.Connection = database;
 
+            /*
             //Run command and get data
             using (SQLiteDataReader data = Watcher.QueryDB(query))
             {
@@ -156,7 +156,7 @@ namespace ActiveWatcher
                             seriesHold[index].Values.Add(new DateTimePoint(date.AddMinutes(-1), 0));
                         }
                         */
-
+            /*
                         if (count > 0) ignoreEmpty.Remove(seriesHold[pname]);
 
                         //Add value to series data
@@ -167,7 +167,7 @@ namespace ActiveWatcher
                 //Close data reader
                 data.Close();
             }
-
+            */
 
             ////Do query for processes
             //using (SQLiteCommand comm = new SQLiteCommand())

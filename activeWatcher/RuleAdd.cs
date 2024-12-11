@@ -26,13 +26,10 @@ namespace ActiveWatcher
 
 			//Populate array with the process values
 			int ptr = 1;
-			foreach(WProcess process in Watcher.instance.procManager.processes.Values)
+			foreach(ProcessDetails process in Watcher.instance.procManager.processList)
 			{
-				//Dont include this program, or idle processes
-				if (process.processName == "ActiveWatcher" || process.processName == "Idle" || process.processName == Watcher.IDLENAME) continue;
-
 				//Add the program root process as key and the display name as value
-				programData[ptr++] = new KeyValuePair<string, string>(process.processName, process.commonName);
+				programData[ptr++] = new KeyValuePair<string, string>(process.Descriptor, process.DisplayName);
 			}
 			//Set properties on Dropdown
 			ddProgram.DataSource = programData;
@@ -64,11 +61,13 @@ namespace ActiveWatcher
 
 		private void apply_Click(object sender, EventArgs e)
 		{
+			/*
 			Watcher.instance.addRule(new Rule(((KeyValuePair<string, string>)ddProgram.SelectedItem).Value,
 				(string)ddProgram.SelectedValue,
 				false,
 				(int)numericUpDown1.Value * ((string)ddTime.SelectedValue == "sec" ? 1 : 60)
 				)); //(Rule.RuleResult)ddAction.SelectedValue));
+			*/
 			parent?.update();
 			this.Close();
 		}

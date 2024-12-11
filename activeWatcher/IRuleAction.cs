@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace ActiveWatcher
 {
 	internal interface IRuleAction
 	{
-		void DoAction(ProcessTimer process);
+		void DoAction(ProcessDetails process);
 	}
 
 	class MessageAction : IRuleAction
@@ -20,7 +21,7 @@ namespace ActiveWatcher
 			this.message = message;
 		}
 
-		public void DoAction(ProcessTimer process)
+		public void DoAction(ProcessDetails process)
 		{
 			System.Media.SystemSounds.Exclamation.Play();
 			System.Windows.Forms.MessageBox.Show(
@@ -38,10 +39,14 @@ namespace ActiveWatcher
 
 		public MinimizeAction() { }
 
-		public void DoAction(ProcessTimer process)
+		public void DoAction(ProcessDetails process)
 		{
-			foreach (System.Diagnostics.Process p in process.process.getHooks())
-				ShowWindow(p.MainWindowHandle, 11);
+			foreach (int id in process.getHooks())
+			{
+				Process p = Process.GetProcessById(id);
+				if (p != null)
+					ShowWindow(p.MainWindowHandle, 11);
+			}
 		}
 	}
 
@@ -49,10 +54,12 @@ namespace ActiveWatcher
 	{
 		public KillAction() { }
 
-		public void DoAction(ProcessTimer process)
+		public void DoAction(ProcessDetails process)
 		{
-			foreach (System.Diagnostics.Process p in process.process.getHooks())
-				p.Kill();
+			foreach (int id in process.getHooks())
+				Process.GetProcessById(id)?.Kill();
+
+			process.clearHooks();
 
 			System.Windows.Forms.MessageBox.Show(
 				"Your time limit has been reached! Process Killed!", 
