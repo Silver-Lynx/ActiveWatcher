@@ -74,7 +74,7 @@ namespace ActiveWatcher
                 rule.AppendChild(val);
 
                 val = doc.CreateElement("Action");
-                val.InnerText = r.result.ToString();
+                //val.InnerText = r.result.ToString();
                 rule.AppendChild(val);
 
                 //Append to rule list

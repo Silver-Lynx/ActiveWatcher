@@ -28,180 +28,192 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.LmaxProcs = new System.Windows.Forms.Label();
-            this.boxNumShow = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.btnAddRule = new System.Windows.Forms.Button();
-            this.numIdle = new System.Windows.Forms.NumericUpDown();
-            this.btnApply = new System.Windows.Forms.Button();
-            this.numOpacity = new System.Windows.Forms.NumericUpDown();
-            this.label2 = new System.Windows.Forms.Label();
-            this.CBIgnoreMouse = new System.Windows.Forms.CheckBox();
-            this.CBShowTotal = new System.Windows.Forms.CheckBox();
-            ((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numIdle)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numOpacity)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // LmaxProcs
-            // 
-            this.LmaxProcs.Location = new System.Drawing.Point(12, 18);
-            this.LmaxProcs.Name = "LmaxProcs";
-            this.LmaxProcs.Size = new System.Drawing.Size(83, 13);
-            this.LmaxProcs.TabIndex = 0;
-            this.LmaxProcs.Text = "Number Shown:";
-            // 
-            // boxNumShow
-            // 
-            this.boxNumShow.Location = new System.Drawing.Point(101, 16);
-            this.boxNumShow.Maximum = new decimal(new int[] {
+			this.LmaxProcs = new System.Windows.Forms.Label();
+			this.boxNumShow = new System.Windows.Forms.NumericUpDown();
+			this.label1 = new System.Windows.Forms.Label();
+			this.btnPrograms = new System.Windows.Forms.Button();
+			this.numIdle = new System.Windows.Forms.NumericUpDown();
+			this.btnApply = new System.Windows.Forms.Button();
+			this.numOpacity = new System.Windows.Forms.NumericUpDown();
+			this.label2 = new System.Windows.Forms.Label();
+			this.CBIgnoreMouse = new System.Windows.Forms.CheckBox();
+			this.CBShowTotal = new System.Windows.Forms.CheckBox();
+			this.btnRules = new System.Windows.Forms.Button();
+			((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numIdle)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numOpacity)).BeginInit();
+			this.SuspendLayout();
+			// 
+			// LmaxProcs
+			// 
+			this.LmaxProcs.Location = new System.Drawing.Point(12, 18);
+			this.LmaxProcs.Name = "LmaxProcs";
+			this.LmaxProcs.Size = new System.Drawing.Size(83, 13);
+			this.LmaxProcs.TabIndex = 0;
+			this.LmaxProcs.Text = "Number Shown:";
+			// 
+			// boxNumShow
+			// 
+			this.boxNumShow.Location = new System.Drawing.Point(101, 16);
+			this.boxNumShow.Maximum = new decimal(new int[] {
             10,
             0,
             0,
             0});
-            this.boxNumShow.Minimum = new decimal(new int[] {
+			this.boxNumShow.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.boxNumShow.Name = "boxNumShow";
-            this.boxNumShow.Size = new System.Drawing.Size(59, 20);
-            this.boxNumShow.TabIndex = 1;
-            this.boxNumShow.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.boxNumShow.Value = new decimal(new int[] {
+			this.boxNumShow.Name = "boxNumShow";
+			this.boxNumShow.Size = new System.Drawing.Size(59, 20);
+			this.boxNumShow.TabIndex = 1;
+			this.boxNumShow.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.boxNumShow.Value = new decimal(new int[] {
             5,
             0,
             0,
             0});
-            // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(12, 50);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Idle Time (Sec):";
-            // 
-            // btnAddRule
-            // 
-            this.btnAddRule.Location = new System.Drawing.Point(12, 194);
-            this.btnAddRule.Name = "btnAddRule";
-            this.btnAddRule.Size = new System.Drawing.Size(83, 23);
-            this.btnAddRule.TabIndex = 4;
-            this.btnAddRule.Text = "Rules List...";
-            this.btnAddRule.UseVisualStyleBackColor = true;
-            this.btnAddRule.Click += new System.EventHandler(this.btnAddRule_Click);
-            // 
-            // numIdle
-            // 
-            this.numIdle.Location = new System.Drawing.Point(101, 48);
-            this.numIdle.Maximum = new decimal(new int[] {
+			// 
+			// label1
+			// 
+			this.label1.Location = new System.Drawing.Point(12, 50);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(83, 13);
+			this.label1.TabIndex = 2;
+			this.label1.Text = "Idle Time (Sec):";
+			// 
+			// btnPrograms
+			// 
+			this.btnPrograms.Location = new System.Drawing.Point(12, 194);
+			this.btnPrograms.Name = "btnPrograms";
+			this.btnPrograms.Size = new System.Drawing.Size(83, 23);
+			this.btnPrograms.TabIndex = 4;
+			this.btnPrograms.Text = "Program List";
+			this.btnPrograms.UseVisualStyleBackColor = true;
+			this.btnPrograms.Click += new System.EventHandler(this.btnPrograms_Click);
+			// 
+			// numIdle
+			// 
+			this.numIdle.Location = new System.Drawing.Point(101, 48);
+			this.numIdle.Maximum = new decimal(new int[] {
             3600,
             0,
             0,
             0});
-            this.numIdle.Minimum = new decimal(new int[] {
+			this.numIdle.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.numIdle.Name = "numIdle";
-            this.numIdle.Size = new System.Drawing.Size(59, 20);
-            this.numIdle.TabIndex = 7;
-            this.numIdle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.numIdle.Value = new decimal(new int[] {
+			this.numIdle.Name = "numIdle";
+			this.numIdle.Size = new System.Drawing.Size(59, 20);
+			this.numIdle.TabIndex = 7;
+			this.numIdle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.numIdle.Value = new decimal(new int[] {
             5,
             0,
             0,
             0});
-            // 
-            // btnApply
-            // 
-            this.btnApply.Location = new System.Drawing.Point(150, 194);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(75, 23);
-            this.btnApply.TabIndex = 9;
-            this.btnApply.Text = "Apply";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
-            // 
-            // numOpacity
-            // 
-            this.numOpacity.Increment = new decimal(new int[] {
+			// 
+			// btnApply
+			// 
+			this.btnApply.Location = new System.Drawing.Point(150, 194);
+			this.btnApply.Name = "btnApply";
+			this.btnApply.Size = new System.Drawing.Size(75, 23);
+			this.btnApply.TabIndex = 9;
+			this.btnApply.Text = "Apply";
+			this.btnApply.UseVisualStyleBackColor = true;
+			this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+			// 
+			// numOpacity
+			// 
+			this.numOpacity.Increment = new decimal(new int[] {
             10,
             0,
             0,
             0});
-            this.numOpacity.Location = new System.Drawing.Point(101, 80);
-            this.numOpacity.Minimum = new decimal(new int[] {
+			this.numOpacity.Location = new System.Drawing.Point(101, 80);
+			this.numOpacity.Minimum = new decimal(new int[] {
             10,
             0,
             0,
             0});
-            this.numOpacity.Name = "numOpacity";
-            this.numOpacity.Size = new System.Drawing.Size(59, 20);
-            this.numOpacity.TabIndex = 11;
-            this.numOpacity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.numOpacity.Value = new decimal(new int[] {
+			this.numOpacity.Name = "numOpacity";
+			this.numOpacity.Size = new System.Drawing.Size(59, 20);
+			this.numOpacity.TabIndex = 11;
+			this.numOpacity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.numOpacity.Value = new decimal(new int[] {
             10,
             0,
             0,
             0});
-            // 
-            // label2
-            // 
-            this.label2.Location = new System.Drawing.Point(12, 82);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(83, 13);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Transparency";
-            // 
-            // CBIgnoreMouse
-            // 
-            this.CBIgnoreMouse.AutoSize = true;
-            this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 118);
-            this.CBIgnoreMouse.Name = "CBIgnoreMouse";
-            this.CBIgnoreMouse.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.CBIgnoreMouse.Size = new System.Drawing.Size(123, 17);
-            this.CBIgnoreMouse.TabIndex = 12;
-            this.CBIgnoreMouse.Text = "Ignore Mouse Hover";
-            this.CBIgnoreMouse.UseVisualStyleBackColor = true;
-            // 
-            // CBShowTotal
-            // 
-            this.CBShowTotal.AutoSize = true;
-            this.CBShowTotal.Location = new System.Drawing.Point(29, 150);
-            this.CBShowTotal.Name = "CBShowTotal";
-            this.CBShowTotal.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.CBShowTotal.Size = new System.Drawing.Size(106, 17);
-            this.CBShowTotal.TabIndex = 13;
-            this.CBShowTotal.Text = "Show Total Time";
-            this.CBShowTotal.UseVisualStyleBackColor = true;
-            // 
-            // Options
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(237, 229);
-            this.Controls.Add(this.CBShowTotal);
-            this.Controls.Add(this.CBIgnoreMouse);
-            this.Controls.Add(this.numOpacity);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.btnApply);
-            this.Controls.Add(this.numIdle);
-            this.Controls.Add(this.btnAddRule);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.boxNumShow);
-            this.Controls.Add(this.LmaxProcs);
-            this.Icon = global::ActiveWatcher.Properties.Resources.ActiveWatcherIcon;
-            this.Name = "Options";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Options";
-            ((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numIdle)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numOpacity)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+			// 
+			// label2
+			// 
+			this.label2.Location = new System.Drawing.Point(12, 82);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(83, 13);
+			this.label2.TabIndex = 10;
+			this.label2.Text = "Transparency";
+			// 
+			// CBIgnoreMouse
+			// 
+			this.CBIgnoreMouse.AutoSize = true;
+			this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 118);
+			this.CBIgnoreMouse.Name = "CBIgnoreMouse";
+			this.CBIgnoreMouse.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.CBIgnoreMouse.Size = new System.Drawing.Size(123, 17);
+			this.CBIgnoreMouse.TabIndex = 12;
+			this.CBIgnoreMouse.Text = "Ignore Mouse Hover";
+			this.CBIgnoreMouse.UseVisualStyleBackColor = true;
+			// 
+			// CBShowTotal
+			// 
+			this.CBShowTotal.AutoSize = true;
+			this.CBShowTotal.Location = new System.Drawing.Point(29, 150);
+			this.CBShowTotal.Name = "CBShowTotal";
+			this.CBShowTotal.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.CBShowTotal.Size = new System.Drawing.Size(106, 17);
+			this.CBShowTotal.TabIndex = 13;
+			this.CBShowTotal.Text = "Show Total Time";
+			this.CBShowTotal.UseVisualStyleBackColor = true;
+			// 
+			// btnRules
+			// 
+			this.btnRules.Location = new System.Drawing.Point(12, 223);
+			this.btnRules.Name = "btnRules";
+			this.btnRules.Size = new System.Drawing.Size(83, 23);
+			this.btnRules.TabIndex = 14;
+			this.btnRules.Text = "Rules";
+			this.btnRules.UseVisualStyleBackColor = true;
+			this.btnRules.Click += new System.EventHandler(this.btnRules_Click);
+			// 
+			// Options
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(237, 261);
+			this.Controls.Add(this.btnRules);
+			this.Controls.Add(this.CBShowTotal);
+			this.Controls.Add(this.CBIgnoreMouse);
+			this.Controls.Add(this.numOpacity);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.btnApply);
+			this.Controls.Add(this.numIdle);
+			this.Controls.Add(this.btnPrograms);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.boxNumShow);
+			this.Controls.Add(this.LmaxProcs);
+			this.Icon = global::ActiveWatcher.Properties.Resources.ActiveWatcherIcon;
+			this.Name = "Options";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "Options";
+			((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numIdle)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numOpacity)).EndInit();
+			this.ResumeLayout(false);
+			this.PerformLayout();
 
         }
 
@@ -210,12 +222,13 @@
         private System.Windows.Forms.Label LmaxProcs;
         private System.Windows.Forms.NumericUpDown boxNumShow;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button btnAddRule;
+        private System.Windows.Forms.Button btnPrograms;
         private System.Windows.Forms.NumericUpDown numIdle;
         private System.Windows.Forms.Button btnApply;
         private System.Windows.Forms.NumericUpDown numOpacity;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox CBIgnoreMouse;
         private System.Windows.Forms.CheckBox CBShowTotal;
-    }
+		private System.Windows.Forms.Button btnRules;
+	}
 }

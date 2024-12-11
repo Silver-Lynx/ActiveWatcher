@@ -313,8 +313,8 @@ namespace ActiveWatcher
                         rule.SelectSingleNode("Label").InnerText,
                         rule.SelectSingleNode("Process").InnerText,
                         false,
-                        int.Parse(rule.SelectSingleNode("Limit").InnerText),
-                        (Rule.RuleResult)Enum.Parse(typeof(Rule.RuleResult), rule.SelectSingleNode("Action").InnerText)
+                        int.Parse(rule.SelectSingleNode("Limit").InnerText)
+                        //(Rule.RuleResult)Enum.Parse(typeof(Rule.RuleResult), rule.SelectSingleNode("Action").InnerText)
                         ));
                 }
                 catch
@@ -491,13 +491,13 @@ namespace ActiveWatcher
         public static int total = 0;
         public int secondsActive { get; internal set; }
         public WProcess process;
-        List<RuleAlarm> alarms;
+        List<RuleInstance> alarms;
 
         public ProcessTimer(WProcess p,int s = 0)
         {
             this.process = p;
             secondsActive = s;
-            alarms = new List<RuleAlarm>();
+            alarms = new List<RuleInstance>();
         }
 
         public override string ToString()
@@ -509,7 +509,7 @@ namespace ActiveWatcher
         {
             secondsActive++;
 
-            foreach(RuleAlarm a in alarms)
+            foreach(RuleInstance a in alarms)
             {
                 a.evaluate(secondsActive, this);
             }
@@ -527,7 +527,7 @@ namespace ActiveWatcher
 
         internal void removeRule(Rule r)
         {
-            foreach(RuleAlarm a in alarms.ToArray())
+            foreach(RuleInstance a in alarms.ToArray())
             {
                 if (a.Parent == r)
                 {

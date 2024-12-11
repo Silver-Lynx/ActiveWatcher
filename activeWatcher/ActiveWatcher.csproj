@@ -120,6 +120,12 @@
     <Compile Include="Options.Designer.cs">
       <DependentUpon>Options.cs</DependentUpon>
     </Compile>
+    <Compile Include="Processes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Processes.Designer.cs">
+      <DependentUpon>Processes.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProcessManager.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -127,6 +133,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rule.cs" />
+    <Compile Include="IRuleAction.cs" />
     <Compile Include="RuleAdd.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,6 +170,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Options.resx">
       <DependentUpon>Options.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Processes.resx">
+      <DependentUpon>Processes.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="RuleAdd.resx">
       <DependentUpon>RuleAdd.cs</DependentUpon>

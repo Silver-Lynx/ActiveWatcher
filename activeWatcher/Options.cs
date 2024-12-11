@@ -22,11 +22,6 @@ namespace ActiveWatcher
             CBShowTotal.Checked = Watcher.SHOWTOTAL;
         }
 
-        private void btnAddRule_Click(object sender, EventArgs e)
-        {
-            new RuleList().Show();
-        }
-
         private void btnApply_Click(object sender, EventArgs e)
         {
             //Set Variables
@@ -46,5 +41,15 @@ namespace ActiveWatcher
         {
             this.Close();
         }
-    }
+
+		private void btnRules_Click(object sender, EventArgs e)
+		{
+			new RuleList().Show();
+		}
+
+		private void btnPrograms_Click(object sender, EventArgs e)
+		{
+            new Processes().Show();
+		}
+	}
 }
