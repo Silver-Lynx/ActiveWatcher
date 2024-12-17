@@ -31,7 +31,7 @@ namespace ActiveWatcher
             Watcher.settings.PASSTHROUGH = CBIgnoreMouse.Checked;
             Watcher.settings.SHOWTOTAL = CBShowTotal.Checked;
 
-            TimerHolder.instance.redraw();
+            TimerHolder.instance.Redraw();
 
             //Save to init file
             DataManager.SaveConfig(Watcher.settings);

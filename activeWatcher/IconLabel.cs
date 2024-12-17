@@ -93,7 +93,7 @@ namespace ActiveWatcher
         {
             base.OnPaint(e);
 
-            if (this.Width > 0 && this.Height > 0 && (int)(fillPercent * (this.Width - 32)) > 0 && this.Height > 0)
+            if (this.Height > 0 && (int)(fillPercent * (this.Width - 32)) > 0)
             {
                 int length = (int)(fillPercent * (this.Width-32));
 

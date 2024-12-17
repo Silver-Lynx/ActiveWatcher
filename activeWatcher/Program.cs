@@ -14,7 +14,6 @@ namespace ActiveWatcher
         [STAThread]
         static void Main()
         {
-
             Watcher.initialize();
 
             Application.EnableVisualStyles();

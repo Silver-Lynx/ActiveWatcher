@@ -52,7 +52,6 @@ namespace ActiveWatcher
 
 		public delegate void resize(int processCount);
 		public delegate void tick();
-		public event resize onResize;
 		public event tick onTick;
 		internal List<Rule> Rules { get; private set; }
 
@@ -66,6 +65,7 @@ namespace ActiveWatcher
 			if (instance != null) return;
 			instance = new Watcher();
 			instance.procManager = new ProcessManager();
+			instance.procManager.loadProcesses();
 			instance.initClock();
 
 			//Load rules
@@ -100,15 +100,17 @@ namespace ActiveWatcher
 			//Only lookup the timer if its a new ID
 			if (focusID != activeProcessID)
 			{
-				activeProcess = procManager.getProcess(activeProcessID);
+				activeProcess = procManager.getProcess(focusID);
 
 				//Detail not added, add it to list
 				if (activeProcess == null)
-					activeProcess = procManager.addProcess(activeProcessID);
+					activeProcess = procManager.addProcess(focusID);
+
+				Console.WriteLine("New active "+focusID+" - " + activeProcess.Descriptor);
 			}
 
 			activeProcessID = focusID;
-	
+
 			activeProcess.tick();
 
 			//Call tick event

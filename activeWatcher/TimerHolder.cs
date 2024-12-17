@@ -48,8 +48,6 @@ namespace ActiveWatcher
         int labelHeight = 24;
         int labelWidth = 150;
 
-        List<ProcessDetails> processes;
-
         public TimerHolder()
         {
             InitializeComponent();
@@ -66,7 +64,6 @@ namespace ActiveWatcher
             targetOpacity = Watcher.settings.HIDDENOPACITY;
             setPassThrough(Watcher.settings.PASSTHROUGH);
 
-            w.onResize += W_resize;
             w.onTick += W_onTick;
 
             //Needs to use Windows message handler instead of winforms events due to transparency
@@ -89,7 +86,7 @@ namespace ActiveWatcher
 
         public void display()
         {
-            redraw();
+            Redraw();
             ANIMTIMER.Start();
             displaying = true;
         }
@@ -112,7 +109,7 @@ namespace ActiveWatcher
 
         private void W_onTick()
         {
-            this.Invoke(new MethodInvoker(delegate { updateLabels(); }));
+            this.Invoke(new MethodInvoker(delegate { UpdateLabels(); }));
 
             if (!displaying) this.Invoke(new MethodInvoker(delegate { display(); }));
         }
@@ -120,7 +117,7 @@ namespace ActiveWatcher
         private void W_resize(int processCount)
         {
             //this.processes = w.getProcesses();
-            this.Invoke(new MethodInvoker(delegate { this.redraw(); }));
+            this.Invoke(new MethodInvoker(delegate { this.Redraw(); }));
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -129,7 +126,7 @@ namespace ActiveWatcher
             Watcher.instance.saveTimes();
         }
 
-        internal void redraw()
+        internal void Redraw()
         {
             if (w == null) return;
 
@@ -137,37 +134,8 @@ namespace ActiveWatcher
             DisplayCount = Watcher.settings.DISPLAYCOUNT;
             setPassThrough(Watcher.settings.PASSTHROUGH);
 
-            //Resize label array
-            if (DisplayCount != plabels.Length)
-            {
-                IconLabel[] hold = new IconLabel[DisplayCount];
-                for (int i = 0; i < plabels.Length; i++)
-                    hold[i] = plabels[i];
-                plabels = hold;
-            }
-
-            //Build total display if needed
-            if (total == null && Watcher.settings.SHOWTOTAL)
-            {
-                //Total time label
-                total = makeLabel(0);
-                this.Controls.Add(total);
-                //Update label positions
-                for (int i = 0; i < plabels.Length; i++)
-                    if (plabels[i] != null)
-                        plabels[i].Location = new System.Drawing.Point(0, (i + 1) * labelHeight);
-            }
-
-            //Remove total display if needed
-            if (total != null && !Watcher.settings.SHOWTOTAL)
-            {
-                this.Controls.Remove(total);
-                //Update label positions
-                for (int i = 0; i < plabels.Length; i++)
-                    if (plabels[i] != null)
-                        plabels[i].Location = new System.Drawing.Point(0, i * labelHeight);
-            }
-
+            //Resize parent panel
+            List<ProcessDetails> processes = Watcher.instance.procManager.processList;
             int num = processes.Count > DisplayCount ? DisplayCount : processes.Count;
             this.ClientSize = new Size(labelWidth, labelHeight * (num + (Watcher.settings.SHOWTOTAL ? 1 : 0)));
             switch (pos)
@@ -179,55 +147,92 @@ namespace ActiveWatcher
                     this.Location = new Point((Screen.PrimaryScreen.WorkingArea.Width / 2) - (this.Width / 2), 0);
                     break;
                 case Position.TOP_RIGHT:
-                    this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width-this.Width, 0);
+                    this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width, 0);
                     break;
                 case Position.BOTTOM_LEFT:
                     this.Location = new Point(0, Screen.PrimaryScreen.WorkingArea.Height - this.Height);
                     break;
                 case Position.BOTTOM_CENTER:
-                    this.Location = new Point((Screen.PrimaryScreen.WorkingArea.Width / 2) - (this.Width / 2), Screen.PrimaryScreen.WorkingArea.Height-this.Height);
+                    this.Location = new Point((Screen.PrimaryScreen.WorkingArea.Width / 2) - (this.Width / 2), Screen.PrimaryScreen.WorkingArea.Height - this.Height);
                     break;
                 case Position.BOTTOM_RIGHT:
                     this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width, Screen.PrimaryScreen.WorkingArea.Height - this.Height);
                     break;
             }
 
-            updateLabels();
+            //Resize label array and remove excess controls
+            if (DisplayCount != plabels.Length)
+            {
+				for (int i = DisplayCount; i < plabels.Length; i++)
+                    plabels[i].Dispose();
+
+                IconLabel[] hold = new IconLabel[DisplayCount];
+				for (int i = 0; i < plabels.Length; i++)
+				{
+                    if (i >= hold.Length) break;
+
+                    hold[i] = plabels[i];
+				}
+                plabels = hold;
+            }
+
+            //Build total display if needed
+            if (total == null && Watcher.settings.SHOWTOTAL)
+            {
+                //Total time label
+                total = MakeLabel(0);
+                this.Controls.Add(total);
+            }
+
+            //Remove total display if needed
+            if (total != null && !Watcher.settings.SHOWTOTAL)
+            {
+                this.Controls.Remove(total);
+            }
+
+            //Update label positions
+            for (int i = 0; i < plabels.Length; i++)
+                if (plabels[i] != null)
+                    plabels[i].Location = new System.Drawing.Point(0, (Watcher.settings.SHOWTOTAL ? i + 1 : i) * labelHeight);
+
+            UpdateLabels();
             this.Visible = true;
         }
 
-        private void updateLabels()
+        private void UpdateLabels()
         {
-            //Add new label if needed
-            if(processes.Count > 0 && processes.Count <= plabels.Length && plabels[processes.Count-1] == null)
-            {
-                IconLabel hold = makeLabel(processes.Count - (Watcher.settings.SHOWTOTAL ? 0 : 1));
-                this.Controls.Add(hold);
-                this.plabels[processes.Count - 1] = hold;
-            }
-
             if (total != null)
                 total.displayText = string.Format("{0:D}:{1:D2}:{2:D2}/100%", ProcessDetails.totalTime / 3600, (ProcessDetails.totalTime % 3600) / 60, ProcessDetails.totalTime % 60);
 
             //Sort processes by time active
-            List<ProcessDetails> sorted = processes;
+            List<ProcessDetails> sorted = Watcher.instance.procManager.processList;
             sorted.Sort((x , y) => x.currentTime > y.currentTime ? -1 : 1);
+            bool redraw = false;
 
             //Display process details on labels
-            for(int l = 0; l < plabels.Length; l++)
+            for (int i = 0; i < plabels.Length; i++)
             {
-                if(plabels[l] != null)
+                if (sorted.Count == i || sorted[i] == null) break;
+
+                if (plabels[i] == null)
                 {
-                    plabels[l].displayText = sorted[l].ToString();
-                    plabels[l].setToolTip(sorted[l].DisplayName);
-                    plabels[l].Image = sorted[l].Icon;
-                    plabels[l].fillPercent = (double)sorted[l].currentTime / ProcessDetails.totalTime;
-                    plabels[l].Refresh();
+                    IconLabel hold = MakeLabel(i + (Watcher.settings.SHOWTOTAL ? 0 : 1));
+                    Controls.Add(hold);
+                    plabels[i] = hold;
+                    redraw = true;
                 }
+
+                plabels[i].displayText = sorted[i].ToString();
+                plabels[i].setToolTip(sorted[i].DisplayName);
+                plabels[i].Image = sorted[i].Icon;
+                plabels[i].fillPercent = (double)sorted[i].currentTime / ProcessDetails.totalTime;
+                plabels[i].Refresh();
             }
+
+            if (redraw) Redraw();
         }
 
-        IconLabel makeLabel(int position)
+        IconLabel MakeLabel(int position)
         {
             /*
             Label hold = new Label();
@@ -261,37 +266,37 @@ namespace ActiveWatcher
         private void posBR_Click(object sender, EventArgs e)
         {
             pos = Position.BOTTOM_RIGHT;
-            this.redraw();
+            this.Redraw();
         }
 
         private void posBL_Click(object sender, EventArgs e)
         {
             pos = Position.BOTTOM_LEFT;
-            this.redraw();
+            this.Redraw();
         }
 
         private void bottomCenterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             pos = Position.BOTTOM_CENTER;
-            this.redraw();
+            this.Redraw();
         }
 
         private void posTR_Click(object sender, EventArgs e)
         {
             pos = Position.TOP_RIGHT;
-            this.redraw();
+            this.Redraw();
         }
 
         private void posTL_Click(object sender, EventArgs e)
         {
             pos = Position.TOP_LEFT;
-            this.redraw();
+            this.Redraw();
         }
 
         private void posTC_Click(object sender, EventArgs e)
         {
             pos = Position.TOP_CENTER;
-            this.redraw();
+            this.Redraw();
         }
 
         #endregion
@@ -299,14 +304,13 @@ namespace ActiveWatcher
         private void reset_Click(object sender, EventArgs e)
         {
             w.resetAll();
-            processes = Watcher.instance.procManager.processList;//w.getTimers();
             foreach(IconLabel l in plabels)
             {
                 if(l != null)
                     l.Dispose();
             }
             plabels = new IconLabel[DisplayCount];
-            redraw();
+            Redraw();
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)

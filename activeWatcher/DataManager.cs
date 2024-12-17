@@ -52,11 +52,30 @@ namespace ActiveWatcher
 
 		public static List<ProcessDetails> LoadProcesses()
 		{
-			throw new NotImplementedException();
+			List<ProcessDetails> newlist;
+			try
+			{
+				string data = File.ReadAllText(folderPath + "Data/Processes.json");
+
+				newlist = new List<ProcessDetails>(JsonSerializer.Deserialize<ProcessDetails[]>(data));
+
+				Console.WriteLine("Loaded " + newlist.Count + " Process definitions");
+			}
+			catch
+			{
+				newlist = new List<ProcessDetails>();
+
+				Console.WriteLine("Error loading process definitions");
+			}
+
+			return newlist;
 		}
 
 		public static void SaveProcesses(List<ProcessDetails> list)
 		{
+			string data = JsonSerializer.Serialize(list);
+
+			File.WriteAllText(folderPath + "Data/Processes.json", data);
 
 		}
 

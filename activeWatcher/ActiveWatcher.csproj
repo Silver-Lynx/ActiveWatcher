@@ -234,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\ActiveWatcherIcon.ico" />
+    <None Include="Resources\Shadow.png" />
     <None Include="Resources\ZZZ.png" />
   </ItemGroup>
   <ItemGroup>

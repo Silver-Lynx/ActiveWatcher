@@ -57,7 +57,6 @@ namespace ActiveWatcher
 
 		Dictionary<int, ProcessDetails> processByID;
 		public List<ProcessDetails> processList { get; set; }
-		int maxID = 0;
 
 		public ProcessManager()
 		{
@@ -69,92 +68,28 @@ namespace ActiveWatcher
 			processList = DataManager.LoadProcesses();
 			processByID = new Dictionary<int, ProcessDetails>();
 
-			ProcessDetails idle = new ProcessDetails("User Idle", "IDLE", Properties.Resources.ZZZ);
-			processList.Insert(0, idle);
-			processByID.Add(0, idle);
-
-			/*
-			//Open DB connection
-			//SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
-			database.Open();
-			
-			//Do query for processes
-			using (SQLiteCommand comm = new SQLiteCommand())
+			//No process history, add IDLE to list
+			if (processList.Count == 0)
 			{
-				//Build command
-				comm.CommandType = System.Data.CommandType.Text;
-				comm.CommandText = "SELECT process_ndx, process_name, common_name, icon FROM process_ref";
-				comm.Connection = database;
-
-				//Run command and get data
-				using (SQLiteDataReader data = comm.ExecuteReader())
+				ProcessDetails idle = new ProcessDetails("User Idle", "IDLE", Properties.Resources.ZZZ);
+				processByID.Add(0, idle);
+				processList.Add(idle);
+			}
+			//Otherwise, find idle and link ID
+			else
+			{
+				foreach (ProcessDetails item in processList)
 				{
-					//Data exists
-					if (data.HasRows)
+					if (item.Descriptor == "IDLE")
 					{
-						//While data still exists
-						while (data.Read())
-						{
-							//Decode icon
-							Image icon = Utility.imageFromString(data.GetString(3));
-
-							//Add process to list
-							processes.Add(data.GetString(1),
-								new WProcess(data.GetInt32(0),
-									data.GetString(1),
-									data.GetString(2),
-									icon));
-
-							//Update maximum ID
-							if (data.GetInt32(0) > maxID) maxID = data.GetInt32(0) + 1;
-						}
+						processByID.Add(0, item);
+						break;
 					}
-					//Close data reader
-					data.Close();
 				}
 			}
-
-			//close DB Connection
-			database.Close();
-			*/
 		}
-		internal void saveProcess(ProcessDetails p)
-		{
-			/*
-			//Open DB connection
-			SQLiteConnection database = new SQLiteConnection(Watcher.DBCONNECTION);
-			database.Open();
 
-			//Do query for processes
-			using (SQLiteCommand comm = new SQLiteCommand())
-			{
-				//Build command
-				comm.CommandType = System.Data.CommandType.Text;
-				comm.CommandText = @"INSERT INTO process_ref (process_name, common_name, icon) 
-					VALUES (@pname, @cname, @icon);";
-				comm.Connection = database;
 
-				string iconText = "";
-				if (p.icon != null)
-				{
-					iconText = Utility.stringFromImage(p.icon);
-				}
-
-				comm.Parameters.Add("@pname", System.Data.DbType.AnsiString).Value = p.processName;
-				comm.Parameters.Add("@cname", System.Data.DbType.AnsiString).Value = p.commonName;
-				comm.Parameters.Add("@icon", System.Data.DbType.AnsiString).Value = iconText;
-
-				comm.ExecuteNonQuery();
-				int id = (int)database.LastInsertRowId;
-
-				if (id > 0) maxID = id;
-
-				comm.Parameters.Clear();
-
-			}
-			database.Close();
-			*/
-		}
 		
 		internal ProcessDetails addProcess(int ID)
 		{
@@ -195,29 +130,34 @@ namespace ActiveWatcher
 					return process;
 				}
 
+			//Actually new process, continue gathering info
 			Bitmap icon;
 			try
 			{
 				icon = GetAppIcon(p.MainWindowHandle)?.ToBitmap();
+
 				if (icon == null)
 					icon = Icon.ExtractAssociatedIcon(p.MainModule.FileName)?.ToBitmap();
+
+
 			}
 			catch
 			{
 				icon = Properties.Resources.ActiveWatcherIcon.ToBitmap();
 			}
 
-			ProcessDetails proc = new ProcessDetails(
-					p.ProcessName,
-					s,
-					icon
-				);
+			ProcessDetails proc = new ProcessDetails();
+			proc.DisplayName = p.ProcessName;
+			proc.Descriptor = s;
+			proc.Icon = icon;
 
 			//Add new process to lists
 			processByID.Add(ID, proc);
 			processList.Add(proc);
 
-			saveProcess(proc);
+			Console.WriteLine("Added process " + proc.Descriptor + ", saving list...");
+
+			DataManager.SaveProcesses(processList);
 
 			//Return created WProcess
 			return proc;
@@ -226,8 +166,9 @@ namespace ActiveWatcher
 		public ProcessDetails getProcess(int ID)
 		{
 			//If process is in list, return the object
-			if (processByID.ContainsKey(ID))
-				return processList[ID];
+			ProcessDetails r;
+			if (processByID.TryGetValue(ID, out r))
+				return r;
 
 			//else, return null
 			return null;
@@ -257,11 +198,18 @@ namespace ActiveWatcher
 	}
 	internal class ProcessDetails
 	{
-		public string DisplayName { get; private set; }
-		public string Descriptor { get; private set; }
+		public string DisplayName { get; set; }
+		public string Descriptor { get; set; }
 
 		[JsonIgnore]
-		public System.Drawing.Image Icon { get; private set; }
+		public System.Drawing.Bitmap Icon { get; set; }
+
+		[JsonIgnore]
+		public bool Active { get => hooks.Count > 0; }
+		List<int> hooks;
+
+		public static int totalTime = 0;
+		public int currentTime;
 
 		public string IconSerialized
 		{
@@ -269,7 +217,7 @@ namespace ActiveWatcher
 			{
 				using (MemoryStream ms = new MemoryStream())
 				{
-					Icon.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+					Icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 					byte[] imageBytes = ms.ToArray();
 					return Convert.ToBase64String(imageBytes);
 				}
@@ -277,25 +225,23 @@ namespace ActiveWatcher
 			set
 			{
 				byte[] imageBytes = Convert.FromBase64String(value);
-				using (MemoryStream ms = new MemoryStream(imageBytes))
-				{
-					Icon = Bitmap.FromStream(ms);
-				}
+				MemoryStream ms = new MemoryStream(imageBytes);
+				Icon = (Bitmap)Bitmap.FromStream(ms);
 			}
 		}
 
-		public bool Active { get => hooks.Count > 0; }
-		List<int> hooks;
-
-		public static int totalTime = 0;
-		public int currentTime;
-
-		internal ProcessDetails(string dName, string desc, System.Drawing.Image i)
+		internal ProcessDetails(string dName, string desc, System.Drawing.Bitmap i)
 		{
 			hooks = new List<int>();
 			DisplayName = dName;
 			Descriptor = desc;
+			
 			Icon = i;
+		}
+
+		public ProcessDetails()
+		{
+			hooks = new List<int>();
 		}
 
 		public override string ToString()
