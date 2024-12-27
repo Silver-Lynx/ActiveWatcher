@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ActiveWatcher")]
-[assembly: AssemblyDescription("Running program activity and idle tracker")]
+[assembly: AssemblyDescription("Desktop usage tracking")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Silver Lynx")]
+[assembly: AssemblyCompany("T3 Software")]
 [assembly: AssemblyProduct("ActiveWatcher")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a73bb76d-b80a-456a-b9d2-7638c0b82a7f")]
+[assembly: Guid("9a5b8d72-4b3d-477a-9b6b-3cb03f5ff0c2")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("0.6.0.0")]
+[assembly: AssemblyFileVersion("0.6.0.0")]

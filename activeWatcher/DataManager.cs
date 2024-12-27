@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Spatial;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,8 +12,11 @@ using System.Xml.Serialization;
 
 namespace ActiveWatcher
 {
-	internal class DataManager
+	internal static class DataManager
 	{
+		static FileStream activeTimes;
+		static DateTime activeDate = DateTime.Now;
+		static Guid ProgramID = new Guid("9a5b8d72-4b3d-477a-9b6b-3cb03f5ff0c2");
 		static string folderPath = ""; //Default to program folder
 
 		public static Watcher.WatcherConfig LoadConfig()
@@ -75,15 +80,176 @@ namespace ActiveWatcher
 		{
 			string data = JsonSerializer.Serialize(list);
 
+			if (!Directory.Exists(folderPath+"Data"))
+				Directory.CreateDirectory(folderPath+"Data");
+
 			File.WriteAllText(folderPath + "Data/Processes.json", data);
 
 		}
 
-		public static void SaveData()
+		public static void SaveProcessChange(ProcessDetails process)
 		{
-			//Create data directory if needed
-			if (!System.IO.Directory.Exists("Data")) System.IO.Directory.CreateDirectory("Data");
+			//Time file hasn't been opened yet. Open one
+			if(activeTimes == null)
+				LoadTimes();
+
+			activeTimes.WriteByte((byte)'F');
+			activeTimes.Write(process.ID.ToByteArray(), 0, 16);
+			activeTimes.Write(BitConverter.GetBytes(DateTime.Now.ToBinary()), 0, 8);
+			//Pad to 64 bytes for standard sizing
+			for (int i = 0; i < 39; i++)
+			{
+				activeTimes.WriteByte(0);
+			}
+			Console.WriteLine("Saved-F"+process.ID+"|"+DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 		}
 
+		class TimeLoadData
+		{
+			public DateTime LastTime;
+			public long Total;
+		}
+
+		public static void LoadTimes()
+		{
+			DateTime now = System.DateTime.Now;
+
+			string path = folderPath+"Data";
+			string filepath = Path.Combine(path, now.ToString("yyyy-MM-dd") + ".dat");
+
+
+			Console.WriteLine("Attempting to load " + filepath);
+
+			if (!Directory.Exists(path))
+				Directory.CreateDirectory(path);
+
+			Dictionary<Guid, TimeLoadData> times = new Dictionary<Guid, TimeLoadData>();
+			Guid id = Guid.Empty;
+			DateTime start = DateTime.MaxValue;
+			Guid nextid = Guid.Empty;
+			DateTime ending = DateTime.MaxValue;
+			bool skip = false;
+
+			using (FileStream fs = new FileStream(filepath, FileMode.OpenOrCreate))
+			{
+				byte[] data = new byte[64];
+
+				Console.WriteLine("Loading time data...");
+				//Read up to end of file to populate process times
+				while (fs.Read(data,0,64) == 64)
+				{
+					//New focus, get id to start next time frame
+					if ((char)data[0] == 'F')
+					{
+						byte[] dec = new byte[16];
+						Array.Copy(data, 1, dec, 0, 16);
+
+						nextid = new Guid(dec);
+						ending = DateTime.FromBinary((long)BitConverter.ToUInt64(data, 17));
+						skip = false;
+					}
+					//Closed app, just a generic end point
+					else if ((char)data[0] == 'X')
+					{
+						nextid = Guid.Empty;
+						ending = DateTime.FromBinary((long)BitConverter.ToUInt64(data, 1));
+						skip = true;
+					}
+					else
+						continue;
+
+					//If positive time between
+					if (start < ending && id != nextid)
+					{
+						long time = (long)(ending - start).TotalSeconds;
+
+						TimeLoadData current;
+
+						if (times.TryGetValue(id, out current))
+						{
+							current.Total += time;
+							current.LastTime = ending;
+							Console.WriteLine("+ " + time);
+						}
+						else
+						{
+							current = new TimeLoadData();
+							current.Total = time;
+							current.LastTime = ending;
+							times[id] = current;
+							Console.WriteLine("= " + time);
+						}
+					}
+
+					Console.WriteLine(nextid);
+					id = nextid;
+					start = skip ? DateTime.MaxValue : ending;
+				}
+			}
+			Console.WriteLine("Done!");
+
+			//Apply found values to process list
+			foreach (ProcessDetails item in Watcher.instance.procManager.processList)
+			{
+				TimeLoadData value;
+				if (times.TryGetValue(item.ID, out value))
+				{
+					item.SetTime(value.Total);
+					item.LastActive = value.LastTime;
+					Console.WriteLine(item.ID+" = "+value);
+				}
+			}
+
+			//Re-open again in append mode
+			activeDate = now;
+			activeTimes = new FileStream(filepath, FileMode.Append);
+		}
+
+		internal static Guid getProcessGuid(ProcessDetails proc)
+		{
+			// Convert the namespace and name to byte arrays
+			byte[] namespaceBytes = ProgramID.ToByteArray(); 
+			byte[] nameBytes = Encoding.UTF8.GetBytes(proc.Descriptor); 
+			
+			// Combine the namespace and name byte arrays
+			byte[] hashInput = new byte[namespaceBytes.Length + nameBytes.Length]; 
+			Buffer.BlockCopy(namespaceBytes, 0, hashInput, 0, namespaceBytes.Length); 
+			Buffer.BlockCopy(nameBytes, 0, hashInput, namespaceBytes.Length, nameBytes.Length);
+
+			// Hash the combined byte array using SHA-1
+			using (System.Security.Cryptography.SHA1 sha1 = System.Security.Cryptography.SHA1.Create()) { 
+				byte[] hashBytes = sha1.ComputeHash(hashInput); 
+				// Set the version to 5 (SHA-1) and adjust the variant
+				hashBytes[6] = (byte)((hashBytes[6] & 0x0F) | 0x50); // Version 5
+				hashBytes[8] = (byte)((hashBytes[8] & 0x3F) | 0x80); // Variant 
+				
+				// Create a new GUID from the hashed bytes
+				return new Guid(hashBytes.Take(16).ToArray()); }
+		}
+
+		internal static void CloseTimes()
+		{
+			if (activeTimes != null)
+			{
+				activeTimes.WriteByte((byte)'X');
+				activeTimes.Write(BitConverter.GetBytes(DateTime.Now.ToBinary()), 0, 8);
+				//Pad to 64 bytes for standard sizing
+				for (int i = 0; i < 55; i++)
+				{
+					activeTimes.WriteByte(0);
+				}
+
+				activeTimes.Close();
+			}
+		}
+
+		internal static void CheckTime()
+		{
+			if (DateTime.Now.Date != activeDate.Date)
+			{
+				CloseTimes();
+				LoadTimes();
+			}
+		}
 	}
 }

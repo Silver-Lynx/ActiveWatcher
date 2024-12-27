@@ -74,6 +74,7 @@ namespace ActiveWatcher
 
 			//Load times
 			//instance.loadTimes();
+			DataManager.LoadTimes();
 		}
 
 		public void initClock()
@@ -107,6 +108,9 @@ namespace ActiveWatcher
 					activeProcess = procManager.addProcess(focusID);
 
 				Console.WriteLine("New active "+focusID+" - " + activeProcess.Descriptor);
+
+				//Save process change to file
+				DataManager.SaveProcessChange(activeProcess);
 			}
 
 			activeProcessID = focusID;
@@ -115,6 +119,8 @@ namespace ActiveWatcher
 
 			//Call tick event
 			onTick?.Invoke();
+
+			DataManager.CheckTime();
 		}
 
 		#region File Management
@@ -153,36 +159,6 @@ namespace ActiveWatcher
 
 			//Show error if any exceptions happened
 			if (err) MessageBox.Show(" Warning: There were errors while loading saved rules.", "XML Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-		}
-
-		internal void saveTimes()
-		{
-			XmlDocument doc = new XmlDocument();
-			XmlElement times = doc.CreateElement("ProcessTimes");
-
-			/*
-			foreach (ProcessTimer p in timers.Values)
-			{
-				XmlElement timer = doc.CreateElement("ProcessTime");
-
-				XmlElement val = doc.CreateElement("Process");
-				val.InnerText = p.process.ProcessName;
-				timer.AppendChild(val);
-				
-				val = doc.CreateElement("Time");
-				val.InnerText = p.secondsActive.ToString();
-				timer.AppendChild(val);
-
-				times.AppendChild(timer);
-			}
-			*/
-
-			//Add Times list to main document
-			doc.AppendChild(times);
-
-			//Save to File
-			doc.Save("Data/Times.xml");
 
 		}
 
@@ -228,22 +204,5 @@ namespace ActiveWatcher
 				return settings.IDLEMAX;
 			}
 		}
-
-		/*
-		public static SQLiteDataReader QueryDB(string query)
-		{
-			using (SQLiteCommand cmd = new SQLiteCommand())
-			{
-				cmd.Connection = instance.database;
-				cmd.CommandType = System.Data.CommandType.Text;
-				cmd.CommandText = query;
-
-				if (instance.database.State != System.Data.ConnectionState.Open)
-					instance.database.Open();
-
-				return cmd.ExecuteReader();
-			}
-		}
-		*/
 	}
 }

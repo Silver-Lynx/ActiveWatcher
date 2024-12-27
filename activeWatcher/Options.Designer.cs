@@ -39,6 +39,7 @@
 			this.CBIgnoreMouse = new System.Windows.Forms.CheckBox();
 			this.CBShowTotal = new System.Windows.Forms.CheckBox();
 			this.btnRules = new System.Windows.Forms.Button();
+			this.CBstartup = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.boxNumShow)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numIdle)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numOpacity)).BeginInit();
@@ -160,7 +161,7 @@
 			// CBIgnoreMouse
 			// 
 			this.CBIgnoreMouse.AutoSize = true;
-			this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 118);
+			this.CBIgnoreMouse.Location = new System.Drawing.Point(12, 106);
 			this.CBIgnoreMouse.Name = "CBIgnoreMouse";
 			this.CBIgnoreMouse.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 			this.CBIgnoreMouse.Size = new System.Drawing.Size(123, 17);
@@ -171,7 +172,7 @@
 			// CBShowTotal
 			// 
 			this.CBShowTotal.AutoSize = true;
-			this.CBShowTotal.Location = new System.Drawing.Point(29, 150);
+			this.CBShowTotal.Location = new System.Drawing.Point(29, 129);
 			this.CBShowTotal.Name = "CBShowTotal";
 			this.CBShowTotal.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 			this.CBShowTotal.Size = new System.Drawing.Size(106, 17);
@@ -189,11 +190,24 @@
 			this.btnRules.UseVisualStyleBackColor = true;
 			this.btnRules.Click += new System.EventHandler(this.btnRules_Click);
 			// 
+			// CBstartup
+			// 
+			this.CBstartup.AutoSize = true;
+			this.CBstartup.Location = new System.Drawing.Point(31, 152);
+			this.CBstartup.Name = "CBstartup";
+			this.CBstartup.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.CBstartup.Size = new System.Drawing.Size(104, 17);
+			this.CBstartup.TabIndex = 15;
+			this.CBstartup.Text = "Open on Startup";
+			this.CBstartup.UseVisualStyleBackColor = true;
+			this.CBstartup.CheckedChanged += new System.EventHandler(this.CBstartup_CheckedChanged);
+			// 
 			// Options
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(237, 261);
+			this.Controls.Add(this.CBstartup);
 			this.Controls.Add(this.btnRules);
 			this.Controls.Add(this.CBShowTotal);
 			this.Controls.Add(this.CBIgnoreMouse);
@@ -232,5 +246,6 @@
         private System.Windows.Forms.CheckBox CBIgnoreMouse;
         private System.Windows.Forms.CheckBox CBShowTotal;
 		private System.Windows.Forms.Button btnRules;
+		private System.Windows.Forms.CheckBox CBstartup;
 	}
 }

@@ -89,8 +89,6 @@ namespace ActiveWatcher
 			}
 		}
 
-
-		
 		internal ProcessDetails addProcess(int ID)
 		{
 			//First, check if in list already
@@ -138,8 +136,6 @@ namespace ActiveWatcher
 
 				if (icon == null)
 					icon = Icon.ExtractAssociatedIcon(p.MainModule.FileName)?.ToBitmap();
-
-
 			}
 			catch
 			{
@@ -147,9 +143,11 @@ namespace ActiveWatcher
 			}
 
 			ProcessDetails proc = new ProcessDetails();
-			proc.DisplayName = p.ProcessName;
+			proc.DisplayName = s;
 			proc.Descriptor = s;
 			proc.Icon = icon;
+			proc.ID = DataManager.getProcessGuid(proc);
+			proc.Color = GetColor(proc.Icon);
 
 			//Add new process to lists
 			processByID.Add(ID, proc);
@@ -161,6 +159,18 @@ namespace ActiveWatcher
 
 			//Return created WProcess
 			return proc;
+		}
+
+		Color GetColor(Bitmap icon)
+		{
+			//Shrink to 3x3 and get color of center pixel
+			Color color;
+			using (Bitmap getColor = new Bitmap(icon, 3, 3))
+			{
+				color = getColor.GetPixel(1, 1);
+			}
+
+			return color;
 		}
 
 		public ProcessDetails getProcess(int ID)
@@ -196,20 +206,27 @@ namespace ActiveWatcher
 			throw new NotImplementedException();
 		}
 	}
-	internal class ProcessDetails
+	public class ProcessDetails
 	{
 		public string DisplayName { get; set; }
+
+		public Guid ID { get; set; }
+
 		public string Descriptor { get; set; }
 
 		[JsonIgnore]
 		public System.Drawing.Bitmap Icon { get; set; }
 
+		public Color Color { get; set; }
+
 		[JsonIgnore]
 		public bool Active { get => hooks.Count > 0; }
 		List<int> hooks;
 
-		public static int totalTime = 0;
-		public int currentTime;
+		public DateTime LastActive { get; set; }
+
+		public static long totalTime = 0;
+		public long currentTime;
 
 		public string IconSerialized
 		{
@@ -253,6 +270,14 @@ namespace ActiveWatcher
 		{
 			currentTime++;
 			totalTime++;
+			LastActive = DateTime.Now;
+		}
+
+		public void SetTime(long time)
+		{
+			totalTime -= currentTime;
+			totalTime += time;
+			currentTime = time;
 		}
 
 		public void AddHook(int i)

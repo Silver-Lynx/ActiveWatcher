@@ -109,9 +109,9 @@ namespace ActiveWatcher
 
         private void W_onTick()
         {
-            this.Invoke(new MethodInvoker(delegate { UpdateLabels(); }));
+            this?.Invoke(new MethodInvoker(delegate { UpdateLabels(); }));
 
-            if (!displaying) this.Invoke(new MethodInvoker(delegate { display(); }));
+            if (!displaying) this?.Invoke(new MethodInvoker(delegate { display(); }));
         }
 
         private void W_resize(int processCount)
@@ -123,7 +123,9 @@ namespace ActiveWatcher
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            Watcher.instance.saveTimes();
+
+            DataManager.SaveProcesses(Watcher.instance.procManager.processList);
+            DataManager.CloseTimes();
         }
 
         internal void Redraw()
@@ -164,7 +166,7 @@ namespace ActiveWatcher
             if (DisplayCount != plabels.Length)
             {
 				for (int i = DisplayCount; i < plabels.Length; i++)
-                    plabels[i].Dispose();
+                    plabels[i]?.Dispose();
 
                 IconLabel[] hold = new IconLabel[DisplayCount];
 				for (int i = 0; i < plabels.Length; i++)
@@ -206,7 +208,7 @@ namespace ActiveWatcher
 
             //Sort processes by time active
             List<ProcessDetails> sorted = Watcher.instance.procManager.processList;
-            sorted.Sort((x , y) => x.currentTime > y.currentTime ? -1 : 1);
+            sorted.Sort((x , y) => x.LastActive > y.LastActive ? -1 : 1);
             bool redraw = false;
 
             //Display process details on labels
