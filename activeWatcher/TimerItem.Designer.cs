@@ -1,6 +1,6 @@
 ﻿namespace ActiveWatcher
 {
-    partial class IconLabel
+    partial class TimerItem
     {
         /// <summary> 
         /// Required designer variable.

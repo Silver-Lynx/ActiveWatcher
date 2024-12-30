@@ -1,6 +1,6 @@
 ﻿namespace ActiveWatcher
 {
-    partial class TimerHolder
+    partial class TimerList
     {
         /// <summary>
         /// Required designer variable.
@@ -30,9 +30,9 @@
         private void InitializeComponent()
         {
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimerHolder));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimerList));
 			this.Notify = new System.Windows.Forms.NotifyIcon(this.components);
-			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.PopupMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.viewTimelineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.reset = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,20 +46,20 @@
 			this.posTC = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.contextMenuStrip1.SuspendLayout();
+			this.PopupMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// Notify
 			// 
-			this.Notify.ContextMenuStrip = this.contextMenuStrip1;
+			this.Notify.ContextMenuStrip = this.PopupMenu;
 			this.Notify.Icon = ((System.Drawing.Icon)(resources.GetObject("Notify.Icon")));
 			this.Notify.Text = "ActiveWatch";
 			this.Notify.Visible = true;
 			this.Notify.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Notify_MouseDoubleClick);
 			// 
-			// contextMenuStrip1
+			// PopupMenu
 			// 
-			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.PopupMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewTimelineToolStripMenuItem,
             this.toolStripSeparator2,
             this.reset,
@@ -67,32 +67,32 @@
             this.positionToolStripMenuItem,
             this.toolStripSeparator1,
             this.closeToolStripMenuItem});
-			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(148, 126);
+			this.PopupMenu.Name = "contextMenuStrip1";
+			this.PopupMenu.Size = new System.Drawing.Size(181, 148);
 			// 
 			// viewTimelineToolStripMenuItem
 			// 
 			this.viewTimelineToolStripMenuItem.Name = "viewTimelineToolStripMenuItem";
-			this.viewTimelineToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+			this.viewTimelineToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.viewTimelineToolStripMenuItem.Text = "View Timeline";
 			this.viewTimelineToolStripMenuItem.Click += new System.EventHandler(this.viewTimelineToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(144, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
 			// 
 			// reset
 			// 
 			this.reset.Name = "reset";
-			this.reset.Size = new System.Drawing.Size(147, 22);
+			this.reset.Size = new System.Drawing.Size(180, 22);
 			this.reset.Text = "Reset Timers";
 			this.reset.Click += new System.EventHandler(this.reset_Click);
 			// 
 			// optionsToolStripMenuItem
 			// 
 			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.optionsToolStripMenuItem.Text = "Options...";
 			this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
 			// 
@@ -106,7 +106,7 @@
             this.posTL,
             this.posTC});
 			this.positionToolStripMenuItem.Name = "positionToolStripMenuItem";
-			this.positionToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+			this.positionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.positionToolStripMenuItem.Text = "Position";
 			// 
 			// posBR
@@ -154,16 +154,16 @@
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(144, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
 			// 
 			// closeToolStripMenuItem
 			// 
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-			this.closeToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+			this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.closeToolStripMenuItem.Text = "Close";
 			this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
 			// 
-			// TimerHolder
+			// MainDisplay
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -174,14 +174,14 @@
 			this.KeyPreview = true;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.Name = "TimerHolder";
+			this.Name = "MainDisplay";
 			this.ShowInTaskbar = false;
 			this.Text = "ActiveWatch";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TimerHolder_FormClosing);
 			this.MouseEnter += new System.EventHandler(this.TimerHolder_MouseEnter);
 			this.MouseLeave += new System.EventHandler(this.TimerHolder_MouseLeave);
-			this.contextMenuStrip1.ResumeLayout(false);
+			this.PopupMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -189,7 +189,7 @@
         #endregion
         
         private System.Windows.Forms.NotifyIcon Notify;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ContextMenuStrip PopupMenu;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem positionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem posBR;

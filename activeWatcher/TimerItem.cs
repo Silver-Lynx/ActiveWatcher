@@ -11,7 +11,7 @@ using System.Drawing.Drawing2D;
 
 namespace ActiveWatcher
 {
-    public partial class IconLabel : UserControl
+    public partial class TimerItem : UserControl
     {
         public string displayText { get { return textLabel.Text; } set { textLabel.Text = value; textLabel.Invalidate(); } }
 
@@ -19,7 +19,9 @@ namespace ActiveWatcher
 
         internal Image Image { get { return picLabel.Image; } set { picLabel.Image = value; picLabel.Invalidate(); } }
 
-        public IconLabel()
+        internal Color processColor { get; set; } = Color.FromArgb(80, 80, 80);
+
+        public TimerItem()
         {
             InitializeComponent();
         }
@@ -103,7 +105,8 @@ namespace ActiveWatcher
                 LinearGradientBrush b = new LinearGradientBrush(
                             p1, p2,
                             Color.FromArgb(0, 0, 0, 0),
-                            Color.FromArgb(80, 80, 80));
+                            processColor);
+                            //Color.FromArgb(80, 80, 80));
 
                 e.Graphics.FillRectangle(b, 32, 0, length, this.Height);
             }

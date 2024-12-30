@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 namespace ActiveWatcher
 {
-	public partial class Options : Form
+	public partial class Settings : Form
 	{
-		public Options()
+		public Settings()
 		{
 			InitializeComponent();
 			numIdle.Value = Watcher.settings.IDLEMAX;
-			boxNumShow.Value = TimerHolder.instance.DisplayCount;
+			boxNumShow.Value = TimerList.instance.DisplayCount;
 			numOpacity.Value = (decimal)(Watcher.settings.HIDDENOPACITY * 100.0);
 			CBIgnoreMouse.Checked = Watcher.settings.PASSTHROUGH;
 			CBShowTotal.Checked = Watcher.settings.SHOWTOTAL;
@@ -40,15 +40,10 @@ namespace ActiveWatcher
 			Watcher.settings.PASSTHROUGH = CBIgnoreMouse.Checked;
 			Watcher.settings.SHOWTOTAL = CBShowTotal.Checked;
 
-			TimerHolder.instance.Redraw();
+			TimerList.instance.Redraw();
 
 			//Save to init file
 			DataManager.SaveConfig(Watcher.settings);
-		}
-
-		private void btnCancel_Click(object sender, EventArgs e)
-		{
-			this.Close();
 		}
 
 		private void btnRules_Click(object sender, EventArgs e)
@@ -77,6 +72,21 @@ namespace ActiveWatcher
 				else if (key.GetValue("ActiveWatcher") != null)
 					key.DeleteValue("ActiveWatcher");
 			}
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			this.Close();
+		}
+
+		private void processes1_Load(object sender, EventArgs e)
+		{
+			processes1.LoadLists();
+		}
+
+		private void btnClose_Click(object sender, EventArgs e)
+		{
+			this.Close();
 		}
 	}
 }

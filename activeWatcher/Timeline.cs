@@ -215,10 +215,11 @@ namespace ActiveWatcher
             //Repopulate Label list
             foreach(ProcessDetails p in processes)
             {
-                IconLabel hold = new IconLabel();
+                TimerItem hold = new TimerItem();
                 hold.displayText = p.DisplayName;
                 hold.Image = p.Icon;
-                hold.fillPercent = double.Parse(p.Descriptor) / processTotal;
+				hold.processColor = p.DisplayColor;
+				hold.fillPercent = double.Parse(p.Descriptor) / processTotal;
                 hold.resizeText();
                 hold.Location = new Point(0, processes.IndexOf(p) * 32);
 

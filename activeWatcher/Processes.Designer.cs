@@ -29,6 +29,8 @@
 		private void InitializeComponent()
 		{
 			this.Details = new System.Windows.Forms.Panel();
+			this.btnSave = new System.Windows.Forms.Button();
+			this.Color = new System.Windows.Forms.PictureBox();
 			this.TagList = new System.Windows.Forms.CheckedListBox();
 			this.DisplayName = new System.Windows.Forms.TextBox();
 			this.Icon = new System.Windows.Forms.PictureBox();
@@ -36,14 +38,17 @@
 			this.label3 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.Table = new System.Windows.Forms.TableLayoutPanel();
-			this.Color = new System.Windows.Forms.PictureBox();
+			this.PopupColor = new System.Windows.Forms.ColorDialog();
+			this.btnTags = new System.Windows.Forms.Button();
 			this.Details.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.Icon)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.Color)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Icon)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// Details
 			// 
+			this.Details.Controls.Add(this.btnTags);
+			this.Details.Controls.Add(this.btnSave);
 			this.Details.Controls.Add(this.Color);
 			this.Details.Controls.Add(this.TagList);
 			this.Details.Controls.Add(this.DisplayName);
@@ -57,19 +62,42 @@
 			this.Details.Size = new System.Drawing.Size(182, 450);
 			this.Details.TabIndex = 1;
 			// 
+			// btnSave
+			// 
+			this.btnSave.Location = new System.Drawing.Point(12, 392);
+			this.btnSave.Name = "btnSave";
+			this.btnSave.Size = new System.Drawing.Size(158, 23);
+			this.btnSave.TabIndex = 8;
+			this.btnSave.Text = "Save Changes";
+			this.btnSave.UseVisualStyleBackColor = true;
+			this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+			// 
+			// Color
+			// 
+			this.Color.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+			this.Color.Image = global::ActiveWatcher.Properties.Resources.ZZZ;
+			this.Color.InitialImage = global::ActiveWatcher.Properties.Resources.ZZZ;
+			this.Color.Location = new System.Drawing.Point(69, 12);
+			this.Color.Name = "Color";
+			this.Color.Size = new System.Drawing.Size(48, 48);
+			this.Color.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.Color.TabIndex = 7;
+			this.Color.TabStop = false;
+			this.Color.Click += new System.EventHandler(this.Color_Click);
+			// 
 			// TagList
 			// 
 			this.TagList.FormattingEnabled = true;
-			this.TagList.Location = new System.Drawing.Point(15, 172);
+			this.TagList.Location = new System.Drawing.Point(12, 160);
 			this.TagList.Name = "TagList";
-			this.TagList.Size = new System.Drawing.Size(155, 169);
+			this.TagList.Size = new System.Drawing.Size(158, 169);
 			this.TagList.TabIndex = 6;
 			// 
 			// DisplayName
 			// 
-			this.DisplayName.Location = new System.Drawing.Point(15, 111);
+			this.DisplayName.Location = new System.Drawing.Point(12, 111);
 			this.DisplayName.Name = "DisplayName";
-			this.DisplayName.Size = new System.Drawing.Size(155, 20);
+			this.DisplayName.Size = new System.Drawing.Size(158, 20);
 			this.DisplayName.TabIndex = 5;
 			// 
 			// Icon
@@ -98,7 +126,7 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(12, 156);
+			this.label3.Location = new System.Drawing.Point(12, 144);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(31, 13);
 			this.label3.TabIndex = 2;
@@ -119,46 +147,38 @@
 			this.Table.BackColor = System.Drawing.SystemColors.ControlDark;
 			this.Table.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
 			this.Table.ColumnCount = 1;
-			this.Table.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.Table.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.Table.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.Table.Location = new System.Drawing.Point(0, 0);
 			this.Table.Name = "Table";
 			this.Table.RowCount = 2;
 			this.Table.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
 			this.Table.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-			this.Table.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.Table.Size = new System.Drawing.Size(314, 450);
 			this.Table.TabIndex = 1;
 			// 
-			// Color
+			// btnTags
 			// 
-			this.Color.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-			this.Color.Image = global::ActiveWatcher.Properties.Resources.ZZZ;
-			this.Color.InitialImage = global::ActiveWatcher.Properties.Resources.ZZZ;
-			this.Color.Location = new System.Drawing.Point(69, 12);
-			this.Color.Name = "Color";
-			this.Color.Size = new System.Drawing.Size(48, 48);
-			this.Color.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.Color.TabIndex = 7;
-			this.Color.TabStop = false;
+			this.btnTags.Enabled = false;
+			this.btnTags.Location = new System.Drawing.Point(69, 335);
+			this.btnTags.Name = "btnTags";
+			this.btnTags.Size = new System.Drawing.Size(101, 23);
+			this.btnTags.TabIndex = 10;
+			this.btnTags.Text = "Manage Tags...";
+			this.btnTags.UseVisualStyleBackColor = true;
 			// 
 			// Processes
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(496, 450);
 			this.Controls.Add(this.Table);
 			this.Controls.Add(this.Details);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
 			this.Name = "Processes";
-			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "Known Processes";
+			this.Size = new System.Drawing.Size(496, 450);
 			this.Details.ResumeLayout(false);
 			this.Details.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.Icon)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.Color)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Icon)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -173,5 +193,8 @@
 		private System.Windows.Forms.TextBox DisplayName;
 		private System.Windows.Forms.TableLayoutPanel Table;
 		private System.Windows.Forms.PictureBox Color;
+		private System.Windows.Forms.ColorDialog PopupColor;
+		private System.Windows.Forms.Button btnSave;
+		private System.Windows.Forms.Button btnTags;
 	}
 }

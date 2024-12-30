@@ -7,8 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace ActiveWatcher
 {
@@ -136,6 +134,8 @@ namespace ActiveWatcher
 
 				if (icon == null)
 					icon = Icon.ExtractAssociatedIcon(p.MainModule.FileName)?.ToBitmap();
+
+				icon = new Bitmap(icon, new Size(32,32));
 			}
 			catch
 			{
@@ -147,7 +147,21 @@ namespace ActiveWatcher
 			proc.Descriptor = s;
 			proc.Icon = icon;
 			proc.ID = DataManager.getProcessGuid(proc);
-			proc.Color = GetColor(proc.Icon);
+			proc.DisplayColor = GetColor(proc.Icon);
+
+			//Get list of default tags by checking the exe path
+			string path = p.MainModule.FileName;
+			List<int> tags = new List<int>();
+			Console.WriteLine("Checking for tags: " + path);
+			foreach(DataManager.ProcessTag tag in DataManager.TagList)
+			{
+				if (tag.CheckPath(path))
+				{
+					Console.WriteLine("TRUE");
+					tags.Add(tag.ID);
+				}
+			}
+			proc.TagIDs = tags.ToArray();
 
 			//Add new process to lists
 			processByID.Add(ID, proc);
@@ -217,16 +231,23 @@ namespace ActiveWatcher
 		[JsonIgnore]
 		public System.Drawing.Bitmap Icon { get; set; }
 
-		public Color Color { get; set; }
+		[JsonIgnore]
+		public System.Drawing.Color DisplayColor { get; set; }
+
+		public string ColorHex { get { return ColorTranslator.ToHtml(DisplayColor); } set { DisplayColor = ColorTranslator.FromHtml(value); } }
 
 		[JsonIgnore]
 		public bool Active { get => hooks.Count > 0; }
 		List<int> hooks;
 
+		public int[] TagIDs { get; set; } = new int[0];
+
 		public DateTime LastActive { get; set; }
 
 		public static long totalTime = 0;
 		public long currentTime;
+
+		public static long mostTime = 0;
 
 		public string IconSerialized
 		{
@@ -271,6 +292,8 @@ namespace ActiveWatcher
 			currentTime++;
 			totalTime++;
 			LastActive = DateTime.Now;
+
+			if(currentTime > mostTime) mostTime = currentTime;
 		}
 
 		public void SetTime(long time)
@@ -283,6 +306,11 @@ namespace ActiveWatcher
 		public void AddHook(int i)
 		{
 			hooks.Add(i);
+		}
+
+		public bool HasTag(int ID)
+		{
+			return TagIDs.Contains(ID);
 		}
 
 		internal IEnumerable<int> getHooks()

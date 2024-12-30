@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Data.Entity.Spatial;
 using System.Diagnostics;
@@ -6,14 +7,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Xml.Serialization;
 
 namespace ActiveWatcher
 {
 	internal static class DataManager
 	{
+		static int TagMaxID = 0;
+		public static List<ProcessTag> TagList {get; private set;}
 		static FileStream activeTimes;
 		static DateTime activeDate = DateTime.Now;
 		static Guid ProgramID = new Guid("9a5b8d72-4b3d-477a-9b6b-3cb03f5ff0c2");
@@ -64,6 +69,10 @@ namespace ActiveWatcher
 
 				newlist = new List<ProcessDetails>(JsonSerializer.Deserialize<ProcessDetails[]>(data));
 
+				int nulls = newlist.RemoveAll(p => p == null);
+
+				if (nulls > 0)
+					Console.WriteLine("Found "+nulls+" Null Processes");
 				Console.WriteLine("Loaded " + newlist.Count + " Process definitions");
 			}
 			catch
@@ -250,6 +259,106 @@ namespace ActiveWatcher
 				CloseTimes();
 				LoadTimes();
 			}
+		}
+
+		public class ProcessTag
+		{
+			public int ID { get; set; }
+			public string TagName { get; set; }
+			public string[] DefaultPaths { get; set; }
+
+			public ProcessTag() { }
+
+			public bool CheckPath(string path)
+			{
+				foreach (string item in DefaultPaths)
+				{
+					string pattern = "^.*" + Regex.Escape(item).Replace("*", ".*").Replace("?", ".") + ".*$";
+
+					Console.WriteLine(pattern);
+
+					if (Regex.IsMatch(path,pattern,RegexOptions.IgnoreCase))
+						return true;
+				}
+				return false;
+			}
+
+			public static implicit operator int(ProcessTag t) => t.ID;
+
+			public override string ToString()
+			{
+				return TagName;
+			}
+		}
+
+		public static void LoadTags()
+		{
+			try
+			{
+				string data = File.ReadAllText(folderPath + "Data/Tags.json");
+
+				List<ProcessTag> tags = new List<ProcessTag>(JsonSerializer.Deserialize<ProcessTag[]>(data));
+
+				TagList = tags;
+
+				//Get max ID number
+				foreach (ProcessTag tag in tags)
+					if(tag.ID > TagMaxID) TagMaxID = tag.ID;
+			}
+			catch
+			{
+				TagList = new List<ProcessTag>();
+
+				ProcessTag system = new ProcessTag();
+				system.ID = 0;
+				system.TagName = "System";
+				system.DefaultPaths = new string[] { ":\\windows"};
+				TagList.Add(system);
+
+				ProcessTag work = new ProcessTag();
+				work.ID = 1;
+				work.TagName = "Work";
+				work.DefaultPaths = new string[] { "office", "microsoft", "adobe", "apple", "autodesk", "corel", "jetbrains", "zoom", "cisco", "notepad", "sublime", "\\atom\\", "figma", "nodejs", "\\gimp" };
+				TagList.Add(work);
+
+				ProcessTag media = new ProcessTag();
+				media.ID = 2;
+				media.TagName = "Media";
+				media.DefaultPaths = new string[] { "chrome", "opera", "firefox", "microsoft\\edge", "discord", "telegram", "element", "pidgin", "trillian", "whatsapp", "signal", "viber", "facebook", "twitter", "tiktok", "\\VLC" };
+				TagList.Add(media);
+
+				ProcessTag games = new ProcessTag();
+				games.ID = 3;
+				games.TagName = "Games";
+				games.DefaultPaths = new string[] { "games", "steam", "origin", "blizzard", "ubisoft", "\\epic" };
+				TagList.Add(games);
+
+				TagMaxID = 3;
+
+				SaveTags();
+			}
+		}
+
+		public static void SaveTags()
+		{
+			string data = JsonSerializer.Serialize(TagList);
+
+			if (!Directory.Exists(folderPath + "Data"))
+				Directory.CreateDirectory(folderPath + "Data");
+
+			File.WriteAllText(folderPath + "Data/Tags.json", data);
+		}
+
+		public static ProcessTag NewTag(string name, string[] defaultpaths)
+		{
+			ProcessTag t = new ProcessTag();
+			t.ID = ++TagMaxID;
+			t.TagName = name;
+			t.DefaultPaths = defaultpaths;
+
+			SaveTags();
+
+			return t;
 		}
 	}
 }

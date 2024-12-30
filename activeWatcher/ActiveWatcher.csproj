@@ -135,20 +135,26 @@
     <Compile Include="Graphs.Designer.cs">
       <DependentUpon>Graphs.cs</DependentUpon>
     </Compile>
-    <Compile Include="IconLabel.cs">
+    <Compile Include="RuleItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IconLabel.Designer.cs">
-      <DependentUpon>IconLabel.cs</DependentUpon>
+    <Compile Include="RuleItem.Designer.cs">
+      <DependentUpon>RuleItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Options.cs">
+    <Compile Include="TimerItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TimerItem.Designer.cs">
+      <DependentUpon>TimerItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Options.Designer.cs">
-      <DependentUpon>Options.cs</DependentUpon>
+    <Compile Include="Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="Processes.cs">
-      <SubType>Form</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Processes.Designer.cs">
       <DependentUpon>Processes.cs</DependentUpon>
@@ -174,7 +180,7 @@
       <DependentUpon>RuleAdd.cs</DependentUpon>
     </Compile>
     <Compile Include="RuleList.cs">
-      <SubType>Form</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="RuleList.Designer.cs">
       <DependentUpon>RuleList.cs</DependentUpon>
@@ -185,11 +191,11 @@
     <Compile Include="Timeline.Designer.cs">
       <DependentUpon>Timeline.cs</DependentUpon>
     </Compile>
-    <Compile Include="TimerHolder.cs">
+    <Compile Include="TimerList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TimerHolder.Designer.cs">
-      <DependentUpon>TimerHolder.cs</DependentUpon>
+    <Compile Include="TimerList.Designer.cs">
+      <DependentUpon>TimerList.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -198,11 +204,14 @@
     <EmbeddedResource Include="Graphs.resx">
       <DependentUpon>Graphs.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="IconLabel.resx">
-      <DependentUpon>IconLabel.cs</DependentUpon>
+    <EmbeddedResource Include="RuleItem.resx">
+      <DependentUpon>RuleItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Options.resx">
-      <DependentUpon>Options.cs</DependentUpon>
+    <EmbeddedResource Include="TimerItem.resx">
+      <DependentUpon>TimerItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Processes.resx">
       <DependentUpon>Processes.cs</DependentUpon>
@@ -219,8 +228,8 @@
     <EmbeddedResource Include="Timeline.resx">
       <DependentUpon>Timeline.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TimerHolder.resx">
-      <DependentUpon>TimerHolder.cs</DependentUpon>
+    <EmbeddedResource Include="TimerList.resx">
+      <DependentUpon>TimerList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

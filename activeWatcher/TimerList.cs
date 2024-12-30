@@ -20,7 +20,7 @@ namespace ActiveWatcher
         BOTTOM_CENTER,
         BOTTOM_RIGHT
     }
-    public partial class TimerHolder : Form
+    public partial class TimerList : Form
     {
         #region imports
         [DllImport("user32.dll", SetLastError = true)]
@@ -32,13 +32,13 @@ namespace ActiveWatcher
         const int WS_EX_TRANSPARENT = 0x20;
         #endregion
 
-        public static TimerHolder instance;
+        public static TimerList instance;
 
         Watcher w;
         Position pos;
         public int DisplayCount { get { return Watcher.settings.DISPLAYCOUNT; } set { Watcher.settings.DISPLAYCOUNT = value;} }
-        IconLabel[] plabels;
-        IconLabel total;
+        TimerItem[] plabels;
+        TimerItem total;
 
         public bool displaying = false;
         Timer ANIMTIMER;
@@ -48,7 +48,7 @@ namespace ActiveWatcher
         int labelHeight = 24;
         int labelWidth = 150;
 
-        public TimerHolder()
+        public TimerList()
         {
             InitializeComponent();
 
@@ -56,7 +56,7 @@ namespace ActiveWatcher
             this.Opacity = 0.0;
             w = Watcher.instance;
             pos = Position.BOTTOM_RIGHT;
-            plabels = new IconLabel[DisplayCount];
+            plabels = new TimerItem[DisplayCount];
 
             ANIMTIMER = new Timer();
             ANIMTIMER.Interval = 16;
@@ -168,7 +168,7 @@ namespace ActiveWatcher
 				for (int i = DisplayCount; i < plabels.Length; i++)
                     plabels[i]?.Dispose();
 
-                IconLabel[] hold = new IconLabel[DisplayCount];
+                TimerItem[] hold = new TimerItem[DisplayCount];
 				for (int i = 0; i < plabels.Length; i++)
 				{
                     if (i >= hold.Length) break;
@@ -218,7 +218,7 @@ namespace ActiveWatcher
 
                 if (plabels[i] == null)
                 {
-                    IconLabel hold = MakeLabel(i + (Watcher.settings.SHOWTOTAL ? 0 : 1));
+                    TimerItem hold = MakeLabel(i + (Watcher.settings.SHOWTOTAL ? 0 : 1));
                     Controls.Add(hold);
                     plabels[i] = hold;
                     redraw = true;
@@ -227,14 +227,15 @@ namespace ActiveWatcher
                 plabels[i].displayText = sorted[i].ToString();
                 plabels[i].setToolTip(sorted[i].DisplayName);
                 plabels[i].Image = sorted[i].Icon;
-                plabels[i].fillPercent = (double)sorted[i].currentTime / ProcessDetails.totalTime;
+				plabels[i].processColor = sorted[i].DisplayColor;
+				plabels[i].fillPercent = (double)sorted[i].currentTime / ProcessDetails.mostTime;
                 plabels[i].Refresh();
             }
 
             if (redraw) Redraw();
         }
 
-        IconLabel MakeLabel(int position)
+        TimerItem MakeLabel(int position)
         {
             /*
             Label hold = new Label();
@@ -249,7 +250,7 @@ namespace ActiveWatcher
             hold.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             hold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             */
-            IconLabel hold = new IconLabel();
+            TimerItem hold = new TimerItem();
             hold.Location = new System.Drawing.Point(0, position * labelHeight);
             hold.Size = new System.Drawing.Size(labelWidth, labelHeight);
 
@@ -306,23 +307,23 @@ namespace ActiveWatcher
         private void reset_Click(object sender, EventArgs e)
         {
             w.resetAll();
-            foreach(IconLabel l in plabels)
+            foreach(TimerItem l in plabels)
             {
                 if(l != null)
                     l.Dispose();
             }
-            plabels = new IconLabel[DisplayCount];
+            plabels = new TimerItem[DisplayCount];
             Redraw();
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Options().Show();
+            new Settings().Show();
         }
 
         private void Notify_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            new Options().Show();
+            new Settings().Show();
         }
 
         private void TimerHolder_MouseEnter(object sender, EventArgs e)
@@ -353,10 +354,10 @@ namespace ActiveWatcher
 
             public event EventHandler onMouseEnter;
             public event EventHandler onMouseLeave;
-            public TimerHolder TargetForm { get; set; }
+            public TimerList TargetForm { get; set; }
             bool mouseInside = false;
 
-            public MouseMoveMessageFilter(TimerHolder t)
+            public MouseMoveMessageFilter(TimerList t)
             {
                 TargetForm = t;
             }

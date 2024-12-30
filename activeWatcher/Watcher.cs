@@ -61,6 +61,7 @@ namespace ActiveWatcher
 		public static void initialize()
 		{
 			settings = DataManager.LoadConfig();
+			DataManager.LoadTags();
 
 			if (instance != null) return;
 			instance = new Watcher();

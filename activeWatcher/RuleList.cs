@@ -11,20 +11,13 @@ using System.Xml;
 
 namespace ActiveWatcher
 {
-    public partial class RuleList : Form
+    public partial class RuleList : UserControl
     {
         BindingList<Rule> binds;
 
         public RuleList()
         {
             InitializeComponent();
-            binds = new BindingList<Rule>(Watcher.instance.Rules);
-            dataViewer.DataSource = binds;
-        }
-
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -44,10 +37,6 @@ namespace ActiveWatcher
 
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            foreach (DataGridViewRow r in dataViewer.SelectedRows)
-            {
-                //Watcher.instance.removeRule((Rule)r.DataBoundItem);
-            }
             update();
         }
 

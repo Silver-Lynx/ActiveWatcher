@@ -18,7 +18,7 @@ namespace ActiveWatcher
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TimerHolder());
+            Application.Run(new TimerList());
         }
     }
 }
